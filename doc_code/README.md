@@ -14,6 +14,7 @@ Identifiers
   * ALL_CAPS - constants from file or module header
 Comments
   * PEP 8 - style guide compliant
+  * PEP 257 - doc string
 Tutorials
   * jupyter notebooks
 ****
