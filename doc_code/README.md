@@ -8,15 +8,15 @@
 
 ## Names
 > parameters <br>
-> variables
-> instance
-> local
+> variables <br>
+> instance <br>
+> local <br>
 
 ## Identifiers
-> ALL_CAPS - constants from file or module header
+> ALL_CAPS constants from file or module header
 
 ## Comments
-> PEP 8 - style guide compliant
+> PEP 8 - style guide compliant <br>
 > PEP 257 - doc string
 
 ## Tutorials
