@@ -1,10 +1,10 @@
 # Code Conventions & Protocols
 ****
 ## Classes
-### CamelCase - named NOUNs
+> CamelCase - named NOUNs
 
 ## Functions aka methods 
-###  lower_case underscore separated affect-describing VERBS er whatever
+>  lower_case underscore separated affect-describing VERBS er whatever
 
 ## Names
 ### parameters
