@@ -7,7 +7,7 @@
 >  lower_case underscore separated affect-describing VERBS er whatever
 
 ## Names
-> parameters
+> parameters <br>
 > variables
 > instance
 > local
