@@ -1,7 +1,7 @@
 # scalygrapic - collected graphical equations with special properties to generate images for machine learning
 <details>
   <summary> 
-   Numerical generator of chaotic, fractal images
+   Operation - numerical generator of chaotic, fractal images.
   </summary>
   <br>
   a. Clone this repository
