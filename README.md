@@ -1,5 +1,18 @@
 # scalygrapic - collected graphical equations with special properties to generate images for machine learning
-
+<details>
+  <summary> 
+   Numerical generator of chaotic, fractal images
+  </summary>
+  <br>
+  a. Clone this repository
+  
+  ```bash scripting
+    git clone https://github.com/dlanier/scalygraphic.git
+  ```
+  b. Use a jupyter notebook to edit a yaml file to set your image resolutions and number of images
+  
+Requires Python 3.5 or more
+ </details>
 * image generator object has:
   * function name - the equation
   * parameter set - fixed parameters passed to the equation
