@@ -13,6 +13,9 @@
   
 Requires Python 3.5 or more
  </details>
+
+------
+ 
 * image generator object has:
   * function name - the equation
   * parameter set - fixed parameters passed to the equation
