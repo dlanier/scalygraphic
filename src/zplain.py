@@ -100,6 +100,10 @@ def complex_to_string(Z, n_dec=3):
     """
     fmt = '.{}f'.format(n_dec)
     cfmt = "{z.real:" + fmt + "}{z.imag:+" + fmt + "}j"
+    # if isinstance(Z, complex):
+    #     cfmt = "{z.real:" + fmt + "}{z.imag:+" + fmt + "}j"
+    # else:
+    #     cfmt = "{z:" + fmt
 
     return cfmt.format(z=Z)
 

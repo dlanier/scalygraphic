@@ -18,6 +18,7 @@ sys.path.insert(0, './')
 import zplain as zp
 import deg_0_ddeq
 
+
 def get_rand_eq_p_set():
     """
     (No Args:)
