@@ -7,7 +7,6 @@
 """
 import os
 import sys
-import inspect
 import time
 import itertools
 import multiprocessing as mp
@@ -16,25 +15,6 @@ import numpy as np
 
 sys.path.insert(0, './')
 import zplain as zp
-import deg_0_ddeq
-
-
-def get_rand_eq_p_set():
-    """
-    (No Args:)
-    Returns:
-        tuple:      (function_name, function_handle, parameter_set)
-    """
-    all_functions = inspect.getmembers(deg_0_ddeq, inspect.isfunction)
-
-    n = np.random.randint(0,len(all_functions),1)
-    chooze_um = all_functions[n[0]]
-    fcn_name = chooze_um[0]
-    fcn = chooze_um[1]
-    p = fcn(0.0, None)
-
-    return (fcn_name, fcn, p)
-
 
 def get_primitives(list_tuple, par_set):
     """     ET, Z, Z0 = get_primitives(list_tuple, par_set)
