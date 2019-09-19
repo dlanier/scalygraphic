@@ -1,4 +1,4 @@
-# scalygrapic - collected graphical equations with special properties to generate images for machine learning
+# scalygrapic - scalable image graphic machine learning
 <details>
   <summary> 
    Operation - numerical generator of chaotic, fractal images.
