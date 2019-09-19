@@ -50,7 +50,7 @@ def get_primitives(list_tuple, par_set):
     else:
         delete_temp_dir = True
     par_set['tmp_dir'] = get_tmp_dir(par_set['dir_path'], 'tmp')
-    complex_frame, par_set = zp.get_frame_from_dict(par_set)
+    complex_frame = zp.get_frame_from_dict(par_set)
     range_enumeration = np.int_(range(0, par_set['n_rows']))
 
     # allocate parallel pool, call multiprocessing.starmap() to write temporary row files

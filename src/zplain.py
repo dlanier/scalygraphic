@@ -36,9 +36,9 @@ def get_frame_from_dict(def_dict=None):
     complex_frame = get_complex_frame(
         def_dict['center_point'],
         def_dict['zoom'],
-        def_dict['theta'],
-        def_dict['n_rows'],
-        def_dict['n_cols'])
+        def_dict['theta'])
+        # def_dict['n_rows'],
+        # def_dict['n_cols'])
 
     return complex_frame
 
@@ -100,10 +100,6 @@ def complex_to_string(Z, n_dec=3):
     """
     fmt = '.{}f'.format(n_dec)
     cfmt = "{z.real:" + fmt + "}{z.imag:+" + fmt + "}j"
-    # if isinstance(Z, complex):
-    #     cfmt = "{z.real:" + fmt + "}{z.imag:+" + fmt + "}j"
-    # else:
-    #     cfmt = "{z:" + fmt
 
     return cfmt.format(z=Z)
 

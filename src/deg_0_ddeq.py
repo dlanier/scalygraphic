@@ -148,30 +148,37 @@ def RoyalZ(Z, p=None, Z0=None, ET=None):
     for n in range(0, nc):
         if Z == 0.0 + 0.0j:
             return np.Inf
-        Z = Z**(-1*np.exp(Z*p[n]))
-    return Z
+        try:
+            Zn = Z**(-1*np.exp(Z*p[n]))
+        except:
+            return Z
+            pass
+        if np.isfinite(Zn):
+            return Zn
+        else:
+            return Z
 
-def T_Spake_Z(Z, p, Z0=None, ET=None):
-    """ Z = T_Spake_Z(Z, p)
-    par_set['zoom'] = 1/3
-
-    Args:
-        Z:    a real or complex number
-        p:    a real of complex number
-
-    Returns:
-        Z:    the result (complex)
-    """
-    if p is None:
-        p = [1.92846051108342, 2.27919841968635, 3.37327534248407, 2.17984103218476]
-    return p
-    d = np.abs(Z-Z0)
-    Zxy = np.sqrt(Z/np.abs(Z))
-    x = np.real(Zxy)
-    y = np.imag(Zxy)*1j
-    Z = Z - ( p[0]*x**3 + 3*p[1]*x**2*y + 3*p[2]*x*y**2 + p[3]*y**3 )**(Z*d)
-
-    return Z
+# def T_Spake_Z(Z, p, Z0=None, ET=None):
+#     """ Z = T_Spake_Z(Z, p)
+#     par_set['zoom'] = 1/3
+#
+#     Args:
+#         Z:    a real or complex number
+#         p:    a real of complex number
+#
+#     Returns:
+#         Z:    the result (complex)
+#     """
+#     if p is None:
+#         p = [1.92846051108342, 2.27919841968635, 3.37327534248407, 2.17984103218476]
+#     return p
+#     d_c = np.abs(Z-Z0)
+#     Zxy = np.sqrt(Z/np.abs(Z))
+#     x = np.real(Zxy)
+#     y = np.imag(Zxy)*1j
+#     Z = Z - ( p[0]*x**3 + 3*p[1]*x**2*y + 3*p[2]*x*y**2 + p[3]*y**3 )**(Z*d_c)
+#
+#     return Z
 
 
 def ItchicuPpwrF(Z, p=None, Z0=None, ET=None, Zm1=0, Zm2=0):
@@ -200,3 +207,27 @@ def ItchicuPpwrF(Z, p=None, Z0=None, ET=None, Zm1=0, Zm2=0):
             return Z
 
     return Z
+
+
+def ElGato(Z, p=None, Z0=None, ET=None):
+    """ Z = bugga_bear(Z, p)
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+        p[0]
+
+    MATLAB:
+    Z^(2 * Z^( -c(1)^( Z^-c(2) )^( Z^-c(3) )^( Z^-c(4) )^( Z^-c(5) )^( Z^-c(6) )^( Z^-c(7))))
+    """
+    if p is None:
+        p = [0.083821, -0.2362, 0.46518, -0.91572, 1.6049, -2.3531, 3.2664]
+        return p
+    elif Z == 0.0+0.0j:
+        return np.Inf
+
+    Zout = Z ** (2 * Z ** (-(
+                (((((p[0] ** Z ** -p[1]) ** (Z ** -p[2])) ** (Z ** -p[3])) ** (Z ** -p[4])) ** (Z ** -p[5])) ** (
+                    Z ** -p[6]))))
+    return Zout
