@@ -5,6 +5,32 @@ Note: third parameter (ET) is ghosted (future - past compatibility)
 """
 import numpy as np
 
+def bugga_bear(Z, p, Z0=None, ET=None):
+    """ Z = bugga_bear(Z, p)
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+    """
+    EPSILON = 1e-15
+
+    if p is None:
+        return [-0.851612290000, -1.794358160000, -4.450415130000]
+    if Z == 0.0+0.0j:
+        return np.Inf
+
+    try:
+        for n in range(1, len(p)+1):
+            Zok = np.isfinite(Z)
+            if Zok and np.abs(Z) != 0:
+                Z = 1 / Z - Z**( n * (Z**( p[n-1]**n )) / np.sqrt(np.pi))
+            elif Zok:
+                Z = 1 / EPSILON - Z**( n * (Z**( p[n-1]**n )) / np.sqrt(np.pi))
+    except:
+        pass
+    return Z
+
 
 def starfish_ish(Z, p=None, Z0=None, ET=None):
     """
@@ -62,6 +88,30 @@ def Nautuliz(Z, p=None, Z0=None, ET=None):
     Z = Z**(-p[0]**(-Z**(-p[1]))) - p[0]**(-Z**(p[1]))
     return Z
 
+def nlC3(Z, p, Z0=None, ET=None):
+    """
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+    """
+    if p is None:
+        P_mat = [[0.161145800333, 0.370248409961, 0.119609846764],
+                 [-0.112413777603, -0.350438576801, 0.377731470314],
+                 [-0.107692385723, 1.539081783286, 0.584733068445],
+                 [-1.077419657727, 1.079694186592, 0.567453371505],
+                 [0.106699281931,-1.446300888486, 0.763588120232],
+                 [0.046632473878, 0.223406467719, 1.386264134664],
+                 [0.830928213916, 2.171631574827, -0.651878138495]]
+        n = np.random.randint(0, len(P_mat), 1)[0]
+        return P_mat[n]
+    elif Z == 0.0+0.0j:
+        return np.Inf
+
+    Z = Z**(2*Z**(-p[0]**( Z**-p[1] )**( Z**-p[2] )  ))
+    return Z
+
 def decPwrAFx(Z, p=None, Z0=None, ET=None):
     """
     par_set['zoom'] = 1/8
@@ -107,6 +157,21 @@ def dreadSkull(Z, p=None, Z0=None, ET=None):
     ZEP = np.exp(Z ** p)
     Zout = (-Z) ** (-ZEP ** (ZEP ** (-ZEP ** (ZEP ** (-ZEP ** (ZEP ** (-ZEP)))))))
     return Zout
+
+def de_Okeeffe(Z, p, Z0=None, ET=None):
+    """ Z = de_Okeeffe(Z, p)
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+    """
+    if p is None:
+        p = [1.2759, 0 + 0.074647j, -0.77504 + 0.007449j, 1.2902 - 2.238e-18j, 0.12875]
+        return p
+
+    Z = (p[2] - p[1]*Z) / (p[4] + p[3]*Z**p[0])
+    return Z
 
 def IslaLace(Z, p=None, Z0=None, ET=None):
     """
@@ -209,3 +274,18 @@ def ElGato(Z, p=None, Z0=None, ET=None):
                 (((((p[0] ** Z ** -p[1]) ** (Z ** -p[2])) ** (Z ** -p[3])) ** (Z ** -p[4])) ** (Z ** -p[5])) ** (
                     Z ** -p[6]))))
     return Zout
+
+def thunderHead(Z, p, Z0=None, ET=None):
+    """ Z = thunderHead(Z, p)
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+    """
+    if p is None:
+        p = [3.83796971, -0.09564841+0.83234946j]
+        return p
+
+    Z = Z**(2*Z**(-2*p[0]**(-2*Z**(-2*p[1]))));
+    return Z
