@@ -158,28 +158,6 @@ def RoyalZ(Z, p=None, Z0=None, ET=None):
         else:
             return Z
 
-# def T_Spake_Z(Z, p, Z0=None, ET=None):
-#     """ Z = T_Spake_Z(Z, p)
-#     par_set['zoom'] = 1/3
-#
-#     Args:
-#         Z:    a real or complex number
-#         p:    a real of complex number
-#
-#     Returns:
-#         Z:    the result (complex)
-#     """
-#     if p is None:
-#         p = [1.92846051108342, 2.27919841968635, 3.37327534248407, 2.17984103218476]
-#     return p
-#     d_c = np.abs(Z-Z0)
-#     Zxy = np.sqrt(Z/np.abs(Z))
-#     x = np.real(Zxy)
-#     y = np.imag(Zxy)*1j
-#     Z = Z - ( p[0]*x**3 + 3*p[1]*x**2*y + 3*p[2]*x*y**2 + p[3]*y**3 )**(Z*d_c)
-#
-#     return Z
-
 
 def ItchicuPpwrF(Z, p=None, Z0=None, ET=None, Zm1=0, Zm2=0):
     """
