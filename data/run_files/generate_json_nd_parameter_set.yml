@@ -1,0 +1,7 @@
+
+method: gen_nd_pars                 # Available methods: gen_im_set gen_nd_pars, stream_ims_frm_nd_pars
+    
+number_of_image_sets: 100
+results_directory:   ../results
+it_max:              64
+escape_dist_scale:         10
