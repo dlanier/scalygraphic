@@ -184,8 +184,11 @@ def IslaLace(Z, p=None, Z0=None, ET=None):
         Z:    the result (complex)
     """
     if p is None:
-        p = [0.444476893762, 0.508164683992 + 0.420921535772j]
-        return p
+        M = [[0.444476893762, 0.508164683992 + 0.420921535772j],
+             [1.032258783648, 0.229133372072 + 0.959497026392j],
+             [1.047484735483, -0.314137674746 - 0.226707640874j]]
+        n = np.random.randint(0, len(M), 1)[0]
+        return M[n]
     elif Z == 0.0+0.0j:
         return np.Inf
 
