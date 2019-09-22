@@ -289,6 +289,8 @@ def thunderHead(Z, p, Z0=None, ET=None):
     if p is None:
         p = [3.83796971, -0.09564841+0.83234946j]
         return p
+    elif Z == 0.0+0.0j:
+        return np.Inf
 
-    Z = Z**(2*Z**(-2*p[0]**(-2*Z**(-2*p[1]))));
+    Z = Z**(2*Z**(-2*p[0]**(-2*Z**(-2*p[1]))))
     return Z
