@@ -198,7 +198,7 @@ def now_name(prefi_str=None, suffi_str=None):
     return prefi_str + '_' + ahora_nombre + suffi_str
 
 
-def write_n_image_sets(n_2_do, iteration_dict, small_scale, large_scale, output_dir, hash_list=[]):
+def write_n_image_sets(n_2_do, iteration_dict, small_scale, large_scale, output_dir, hash_list=None):
     """
     Args:
         n_2_do:         number of pairs of images
@@ -216,6 +216,9 @@ def write_n_image_sets(n_2_do, iteration_dict, small_scale, large_scale, output_
                         asdregshaaldfkaproiapw_small.jpg
                         asdregshaaldfkaproiapw_large.jpg
     """
+    if hash_list is None:
+        hash_list = []
+        
     if os.path.isdir(output_dir) == False:
         os.makedirs(output_dir)
                 
