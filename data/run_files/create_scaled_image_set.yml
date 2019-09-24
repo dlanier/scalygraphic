@@ -1,4 +1,4 @@
-method: gen_nd_pars                 # Available methods: gen_im_set gen_nd_pars, stream_ims_frm_nd_pars
+method:               scaled_images_dataset
 
 number_of_image_sets: 100
 
