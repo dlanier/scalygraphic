@@ -1,0 +1,24 @@
+method: gen_nd_pars                 # Available methods: gen_im_set gen_nd_pars, stream_ims_frm_nd_pars
+
+number_of_image_sets: 100
+
+small_scale_rows:     128
+small_scale_cols:     128
+
+large_scale_rows:     256
+large_scale_cols:     256
+
+results_directory:    ../results
+
+it_max:               64
+scale_dist:           10
+
+
+# hashlist = write_n_image_sets(number_of_image_sets,
+#                               it_max,
+#                               scale_dist,
+#                               small_scale,
+#                               large_scale,
+#                               results_directory,
+#                               hash_list)
+
