@@ -5,6 +5,7 @@ See the Makefile and ../data/run_files/ for usage examples
 """
 import os
 import sys
+import argparse
 import time
 import hashlib
 import inspect
@@ -12,6 +13,8 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import PIL
+
+import yaml
 
 # development running from clone-mount directory or (this) src dir
 sys.path.insert(0, '../src/')
@@ -29,6 +32,42 @@ import numcolorpy as ncp
 """
 EQUS_DICT = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
 EQUS_DICT_NAMED_IDX = {v[0]: k for k, v in EQUS_DICT.items()}
+
+def get_run_directory_and_run_file(args):
+    """ Parse the input arguments to get the run_directory and run_file
+    Args:
+        system args:     -run_directory, -run_file (as below)
+
+    Returns:
+        run_directory:      where run_file is expected
+        run_file:           yaml file with run parameters
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-run_directory', type=str)
+    parser.add_argument('-run_file', type=str)
+    args = parser.parse_args()
+
+    run_directory = args.run_directory
+    run_file = args.run_file
+
+    return run_directory, run_file
+
+def get_run_parameters(run_directory, run_file):
+    """ Read the input arguments into a dictionary
+    Args:
+        run_directory:      where run_file is expected
+        run_file:           yaml file with run parameters
+
+    Returns:
+        run_parameters:     python dictionary of run parameters
+    """
+    run_file_name = os.path.join(run_directory, run_file)
+    with open(run_file_name, 'r') as fh:
+        run_parameters = yaml.load(fh)
+    run_parameters['run_directory'] = run_directory
+    run_parameters['run_file'] = run_file
+
+    return run_parameters
 
 def get_rand_eq_p_set():
     """ get a random equation and parameter set from the deg_0_ddeq module
@@ -197,6 +236,22 @@ def now_name(prefi_str=None, suffi_str=None):
         
     return prefi_str + '_' + ahora_nombre + suffi_str
 
+def scaled_images_dataset(run_parameters):
+    n_2_do = run_parameters['n_2_do']
+    iteration_dict = run_parameters['iteration_dict']
+    small_scale = run_parameters['run_parameters']
+    large_scale = run_parameters['large_scale']
+    output_dir = run_parameters['output_dir']
+
+    if 'hash_list' in run_parameters:
+        hash_list = run_parameters['hash_list']
+        # read & saving hash list function pending
+    else:
+        hash_list = []
+
+    hash_list = write_n_image_sets(n_2_do, iteration_dict, small_scale, large_scale, output_dir, hash_list)
+
+    print('\n%i pairs written \n'%(len(hash_list)))
 
 def write_n_image_sets(n_2_do, iteration_dict, small_scale, large_scale, output_dir, hash_list=None):
     """
