@@ -3,6 +3,9 @@ Collection of functions to run image production for machine learning application
 
 See the Makefile and ../data/run_files/ for usage examples
 """
+import warnings
+warnings.filterwarnings('ignore')
+
 import os
 import sys
 import argparse

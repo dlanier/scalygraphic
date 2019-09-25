@@ -8,17 +8,15 @@ small_scale_cols:     128
 large_scale_rows:     256
 large_scale_cols:     256
 
-results_directory:    ../results
+results_directory:    ./run_dir/results
 
 it_max:               64
 scale_dist:           10
 
-
-# hashlist = write_n_image_sets(number_of_image_sets,
+#hashlist = write_n_image_sets( number_of_image_sets,
 #                               it_max,
 #                               scale_dist,
 #                               small_scale,
 #                               large_scale,
 #                               results_directory,
-#                               hash_list)
-
+#                               hash_list )
