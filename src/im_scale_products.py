@@ -55,6 +55,45 @@ def get_run_directory_and_run_file(args):
 
     return run_directory, run_file
 
+def get_default_run_parameters(results_dir=None):
+    """ default set of run parameters = center area of complex plain
+
+    Args:
+         results_dir:   file-write destination
+
+    Returns:
+        run_parameters: default set of run parameters for calling iteration function
+
+    """
+    run_parameters = {}
+    if results_dir is None:
+        run_parameters['dir_path'] = os.getcwd()
+    else:
+        run_parameters['dir_path'] = results_dir
+    run_parameters = get_default_domain_dict(run_parameters)
+    run_parameters = get_default_iteration_dict(run_parameters)
+    run_parameters['max_d'] = run_parameters['scale_dist'] / run_parameters['zoom']
+    run_parameters['n_rows'] = 256
+    run_parameters['n_cols'] = 256
+
+    return run_parameters
+
+
+def get_default_iteration_dict(iteration_dict=None):
+    if iteration_dict is None:
+        iteration_dict = {}
+    iteration_dict['it_max'] = 64
+    iteration_dict['scale_dist'] = 12
+    return iteration_dict
+
+def get_default_domain_dict(domain_dict=None):
+    if domain_dict is None:
+        domain_dict = {}
+    domain_dict['center_point'] = 0.0 + 0.0j
+    domain_dict['zoom'] = 0.5
+    domain_dict['theta'] = 0.0
+    return domain_dict
+
 def get_run_parameters(run_directory, run_file):
     """ Read the input arguments into a dictionary
     Args:
@@ -324,6 +363,7 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist, small_scale, la
 
                 t0 = time.time()
                 ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
+
                 I = get_im(ET, Z, Z0, domain_dict)
                 file_name = os.path.join(results_directory, hash_idx + '_' + 'small.jpg')
                 I.save(file_name)
