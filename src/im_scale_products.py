@@ -214,51 +214,6 @@ def hash_parameters(domain_dict, fcn_name, p):
     
     return sha256sum(s)
 
-def get_im(ET, Z, Z0, domain_dict):
-    """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
-    ETn         normalized escape time matrix           Hue
-    Zr          normalized rotation of |Z - Z0|         Saturation
-    Zd          normalized magnitude of |Z - Z0|        Value
-    
-    Args:
-        ET:     (Integer) matrix of the Escape Times    
-        Z:      (complex) matrix of the final vectors   
-        Z0:     (complex) matrix of the starting plane
-        
-    Returns:
-        I:      RGB PIL image
-
-    """
-    
-    Zd, Zr, ETn = ncp.etg_norm(Z0, Z, ET)
-
-    A = np.zeros((domain_dict['n_rows'], domain_dict['n_cols'],3))
-    A[:,:,0] += ETn     # Hue
-    A[:,:,1] += Zr      # Saturation
-    A[:,:,2] += Zd      # Value
-    I = PIL.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
-    
-    return I
-
-def get_gray_im(ET, Z, Z0, et_gray=False):
-    """ get a gray-scale image from the products of the escape-time-algorithm
-    
-    Args:
-        ET:     (Integer) matrix of the Escape Times
-        Z:      (complex) matrix of the final vectors
-        Z0:     (complex) matrix of the starting plane
-        
-    Returns:
-        I:      grayscale PIL image
-    """
-    Zd, Zr, ETn = ncp.etg_norm(Z0, Z, ET)
-    
-    if et_gray:
-        I = PIL.Image.fromarray(np.uint8(ETn * 255), 'L')
-    else:
-        I = PIL.Image.fromarray(np.uint8(Zd * 255), 'L')
-    
-    return I
 
 def now_name(prefi_str=None, suffi_str=None):
     """ get a human readable time stamp name 
@@ -310,7 +265,9 @@ def scaled_images_dataset(run_parameters):
 
     print('\n%i pairs written \n'%(len(hash_list)))
 
-def write_n_image_sets(number_of_image_sets, it_max, scale_dist, small_scale, large_scale, results_directory, hash_list):
+def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
+                       small_scale, large_scale,
+                       results_directory, hash_list, greyscale=False):
     """ calculate and write a set of unique images at two scales
     Args:
         number_of_image_sets:   number of pairs of images
@@ -365,7 +322,12 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist, small_scale, la
                 t0 = time.time()
                 ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
 
-                I = get_im(ET, Z, Z0, domain_dict)
+                # I = ncp.get_im(ET, Z, Z0, domain_dict)
+                if greyscale == True:
+                    I = ncp.get_gray_im(ET, Z, Z0)
+                else:
+                    I = ncp.get_im(ET, Z, Z0)
+
                 file_name = os.path.join(results_directory, hash_idx + '_' + 'small.jpg')
                 I.save(file_name)
 
@@ -373,7 +335,12 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist, small_scale, la
                 domain_dict['n_cols'] = large_scale[1]
 
                 ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
-                I = get_im(ET, Z, Z0, domain_dict)
+                # I = ncp.get_im(ET, Z, Z0, domain_dict)
+                if greyscale == True:
+                    I = ncp.get_gray_im(ET, Z, Z0)
+                else:
+                    I = ncp.get_im(ET, Z, Z0)
+
                 file_name = os.path.join(results_directory, hash_idx + '_' + 'large.jpg')
                 I.save(file_name)
                 print('\n%3i of %3i) %s\t\t'%(k_do+1, number_of_image_sets, fcn_name),

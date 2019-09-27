@@ -59,7 +59,8 @@ for k, v in cmaps.items():
         cmap_list.append(vv)
 
 cmap_list = sorted(list(set(cmap_list)))
-print(len(cmap_list), 'color maps available')
+
+# print(len(cmap_list), 'color maps available')
 
 """  
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
@@ -246,7 +247,7 @@ def im_map(imfile_name, cmap_name='gist_gray', thumb_size=None):
     else:
         cm_hot = mpl.cm.get_cmap(cmap_name)
         
-    img_src = Image.open(imfile_name).convert('L')
+    img_src = tip.Image.open(imfile_name).convert('L')
     
     if not thumb_size is None:
         img_src.thumbnail((thumb_size[0],thumb_size[1]))
@@ -254,7 +255,7 @@ def im_map(imfile_name, cmap_name='gist_gray', thumb_size=None):
     im = np.array(img_src)
     im = cm_hot(im)
     im = np.uint8(im * 255)
-    im = Image.fromarray(im)
+    im = tip.Image.fromarray(im)
     
     return im
 
@@ -264,12 +265,12 @@ def get_grey_thumb(imfile_name):
     """
     thumb_size = (512,512)
     c_map = mpl.cm.get_cmap('Greys')
-    img_src = Image.open(imfile_name).convert('L')
+    img_src = tip.Image.open(imfile_name).convert('L')
     img_src.thumbnail(thumb_size)
     im = np.array(img_src)
     im = c_map(im)
     im = np.uint8(im * 255)
-    im = Image.fromarray(im)
+    im = tip.Image.fromarray(im)
     
     return im
 
@@ -291,14 +292,15 @@ def get_etg_im(ET, Z, Z0):
     n_rows = Z0.shape[0]
     n_cols = Z0.shape[1]
     
-    Zd, Zr, ETn = ncp.etg_norm(Z0, Z, ET)
-    
+    Zd, Zr, ETn = etg_norm(Z0, Z, ET)
+    Zd, Zr, ETn = etg_norm(Z0, Z, ET)
+
     A = np.zeros((n_rows, n_cols,3))
     A[:,:,0] += ETn     # Hue
     A[:,:,1] += Zr      # Saturation
     A[:,:,2] += Zd      # Value
     
-    I = PIL.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
+    I = tip.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
     
     return I
 
@@ -358,13 +360,13 @@ def get_im(ET, Z, Z0):
     """
     n_rows = np.shape(ET)[0]
     n_cols = np.shape(ET)[1]
-    Zd, Zr, ETn = ncp.etg_norm(Z0, Z, ET)
+    Zd, Zr, ETn = etg_norm(Z0, Z, ET)
 
     A = np.zeros((n_rows, n_cols, 3))
     A[:,:,0] += ETn     # Hue
     A[:,:,1] += Zr      # Saturation
     A[:,:,2] += Zd      # Value
-    I = PIL.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
+    I = tip.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
     
     return I
 
