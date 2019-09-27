@@ -26,7 +26,8 @@ sys.path.insert(0, 'scalygraphic/src/')
 import zplain as zp
 import eq_iter
 import deg_0_ddeq
-import numcolorpy as ncp
+# import numcolorpy as ncp
+import impute_color as ncp
 
 """     Constants (lookups):
 
