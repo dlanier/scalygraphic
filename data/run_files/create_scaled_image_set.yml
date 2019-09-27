@@ -1,3 +1,7 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                     Parameters to generate a set of scaled images for Machine learning
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 method:               scaled_images_dataset
 
 number_of_image_sets: 100
@@ -14,12 +18,3 @@ it_max:               64
 scale_dist:           10
 
 greyscale:            False
-
-#hashlist = write_n_image_sets( number_of_image_sets,
-#                               it_max,
-#                               scale_dist,
-#                               small_scale,
-#                               large_scale,
-#                               results_directory,
-#                               hash_list,
-#                               greyscale=False )

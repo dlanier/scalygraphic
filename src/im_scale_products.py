@@ -2,6 +2,7 @@
 Collection of functions to run image production for machine learning applications
 
 See the Makefile and ../data/run_files/ for usage examples
+
 """
 import warnings
 warnings.filterwarnings('ignore')
@@ -12,11 +13,8 @@ import argparse
 import time
 import hashlib
 import inspect
-from tempfile import TemporaryDirectory
 
 import numpy as np
-import PIL
-
 import yaml
 
 # development running from clone-mount directory or (this) src dir
@@ -55,6 +53,7 @@ def get_run_directory_and_run_file(args):
     run_file = args.run_file
 
     return run_directory, run_file
+
 
 def get_default_run_parameters(results_dir=None):
     """ default set of run parameters = center area of complex plain
@@ -123,6 +122,7 @@ def get_default_iteration_dict(iteration_dict=None):
     iteration_dict['scale_dist'] = 12
     return iteration_dict
 
+
 def get_default_domain_dict(domain_dict=None):
     if domain_dict is None:
         domain_dict = {}
@@ -130,6 +130,7 @@ def get_default_domain_dict(domain_dict=None):
     domain_dict['zoom'] = 0.5
     domain_dict['theta'] = 0.0
     return domain_dict
+
 
 def get_run_parameters(run_directory, run_file):
     """ Read the input arguments into a dictionary
@@ -148,6 +149,7 @@ def get_run_parameters(run_directory, run_file):
 
     return run_parameters
 
+
 def get_rand_eq_p_set():
     """ get a random equation and parameter set from the deg_0_ddeq module
     (No Args:)
@@ -160,6 +162,7 @@ def get_rand_eq_p_set():
     p = fcn(0.0, None)
 
     return (fcn_name, fcn, p)
+
 
 def get_eq_by_name(fcn_name):
     """ get the function handle from the function name
@@ -175,7 +178,8 @@ def get_eq_by_name(fcn_name):
         return EQUS_DICT[EQUS_DICT_NAMED_IDX[fcn_name]][1]
     else:
         return None
-    
+
+
 def get_random_domain(bounds_dict=None):
     """ Usage: 
     domain_dict = get_random_domain(h, w, bounds_dict)
@@ -210,6 +214,7 @@ def get_random_domain(bounds_dict=None):
     
     return domain_dict
 
+
 def sha256sum(s):
     """ convert a string to a 256 bit hash key as a string
     
@@ -224,6 +229,7 @@ def sha256sum(s):
     h.update(bytes(s, 'ascii'))
     
     return h.hexdigest()
+
 
 def hash_parameters(domain_dict, fcn_name, p):
     """ get a hash value of equation production parameters to compare uniqueness
@@ -270,36 +276,6 @@ def now_name(prefi_str=None, suffi_str=None):
         
     return prefi_str + '_' + ahora_nombre + suffi_str
 
-# def scaled_images_dataset(run_parameters):
-#     """ assemble input arguments and call scaled_images_dataset() function
-#     Args:
-#         run_parameters:   input arguments for write_n_image_sets
-#
-#     Returns:
-#         nothing:
-#     """
-#     number_of_image_sets = run_parameters['number_of_image_sets']
-#     it_max = run_parameters['it_max']
-#     scale_dist = run_parameters['scale_dist']
-#     small_scale = [run_parameters['small_scale_rows'], run_parameters['small_scale_cols']]
-#     large_scale = [run_parameters['large_scale_rows'], run_parameters['large_scale_cols']]
-#     results_directory = run_parameters['results_directory']
-#
-#     if 'hash_list' in run_parameters:
-#         hash_list = run_parameters['hash_list']
-#         # read & saving hash list function pending
-#     else:
-#         hash_list = []
-#
-#     hash_list = write_n_image_sets(number_of_image_sets,
-#                                    it_max,
-#                                    scale_dist,
-#                                    small_scale,
-#                                    large_scale,
-#                                    results_directory,
-#                                    hash_list)
-#
-#     print('\n%i pairs written \n'%(len(hash_list)))
 
 def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
                        small_scale, large_scale,
@@ -335,53 +311,50 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
     else:
         print('new hash list started')
 
-    with TemporaryDirectory() as test_temporary_dir:
+    for k_do in range(number_of_image_sets):
+        fcn_name, eq, p = get_rand_eq_p_set()
+        domain_dict = get_random_domain()
 
-        for k_do in range(number_of_image_sets):
-            fcn_name, eq, p = get_rand_eq_p_set()
-            domain_dict = get_random_domain()
+        domain_dict['it_max'] = it_max
+        domain_dict['max_d'] = scale_dist / domain_dict['zoom']
 
-            domain_dict['it_max'] = it_max
-            domain_dict['max_d'] = scale_dist / domain_dict['zoom']
+        hash_idx = hash_parameters(domain_dict, fcn_name, p)
+        if hash_idx in hash_list:
+            pass
+        else:
+            hash_list.append(hash_idx)
+            domain_dict['n_rows'] = small_scale[0]
+            domain_dict['n_cols'] = small_scale[1]
+            # domain_dict['dir_path'] = test_temporary_dir
 
-            hash_idx = hash_parameters(domain_dict, fcn_name, p)
-            if hash_idx in hash_list:
-                pass
+            list_tuple = [(eq, (p))]
+
+            t0 = time.time()
+            ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
+
+            if greyscale == True:
+                I = ncp.get_gray_im(ET, Z, Z0)
             else:
-                hash_list.append(hash_idx)
-                domain_dict['n_rows'] = small_scale[0]
-                domain_dict['n_cols'] = small_scale[1]
-                domain_dict['dir_path'] = test_temporary_dir
+                I = ncp.get_im(ET, Z, Z0)
 
-                list_tuple = [(eq, (p))]
+            file_name = os.path.join(results_directory, hash_idx + '_' + 'small.jpg')
+            I.save(file_name)
 
-                t0 = time.time()
-                ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
+            domain_dict['n_rows'] = large_scale[0]
+            domain_dict['n_cols'] = large_scale[1]
 
-                # I = ncp.get_im(ET, Z, Z0, domain_dict)
-                if greyscale == True:
-                    I = ncp.get_gray_im(ET, Z, Z0)
-                else:
-                    I = ncp.get_im(ET, Z, Z0)
+            ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
 
-                file_name = os.path.join(results_directory, hash_idx + '_' + 'small.jpg')
-                I.save(file_name)
+            if greyscale == True:
+                I = ncp.get_gray_im(ET, Z, Z0)
+            else:
+                I = ncp.get_im(ET, Z, Z0)
 
-                domain_dict['n_rows'] = large_scale[0]
-                domain_dict['n_cols'] = large_scale[1]
-
-                ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
-                # I = ncp.get_im(ET, Z, Z0, domain_dict)
-                if greyscale == True:
-                    I = ncp.get_gray_im(ET, Z, Z0)
-                else:
-                    I = ncp.get_im(ET, Z, Z0)
-
-                file_name = os.path.join(results_directory, hash_idx + '_' + 'large.jpg')
-                I.save(file_name)
-                print('\n%3i of %3i) %s\t\t'%(k_do+1, number_of_image_sets, fcn_name),
-                      '%0.3f seconds (large & small image written)\n'%(time.time() - t0), 
-                      hash_idx)
+            file_name = os.path.join(results_directory, hash_idx + '_' + 'large.jpg')
+            I.save(file_name)
+            print('\n%3i of %3i) %s\t\t'%(k_do+1, number_of_image_sets, fcn_name),
+                  '%0.3f seconds (large & small image written)\n'%(time.time() - t0),
+                  hash_idx)
                 
     print('\n', now_name('%i pairs written,\nFinished '%(k_do + 1)))
     

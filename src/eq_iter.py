@@ -1,8 +1,7 @@
-# %load ../../FlyingMachineFractal/src/itergataters.py
 """
     eq_iter.py
     
-    Collection of functions to paralellize iteration of graphical difference equations
+    paralellize iteration of graphical difference equation functions
     
 """
 import os
@@ -10,11 +9,13 @@ import sys
 import time
 import itertools
 import multiprocessing as mp
+import tempfile
 
 import numpy as np
 
 sys.path.insert(0, './')
 import zplain as zp
+
 
 def get_primitives(list_tuple, par_set):
     """     ET, Z, Z0 = get_primitives(list_tuple, par_set)
@@ -44,29 +45,24 @@ def get_primitives(list_tuple, par_set):
         Z:                  Complex matrix after iteration
         Z0:                 Complex plane matrix before iteration
     """
-    # check & instantiate the preliminary run parameters
-    if 'delete_temp_dir' in par_set:
-        delete_temp_dir = par_set['delete_temp_dir']
-    else:
-        delete_temp_dir = True
-    par_set['tmp_dir'] = get_tmp_dir(par_set['dir_path'], 'tmp')
-    complex_frame = zp.get_frame_from_dict(par_set)
-    range_enumeration = np.int_(range(0, par_set['n_rows']))
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        par_set['tmp_dir'] = tmp_dir
+        complex_frame = zp.get_frame_from_dict(par_set)
+        range_enumeration = np.int_(range(0, par_set['n_rows']))
 
-    # allocate parallel pool, call multiprocessing.starmap() to write temporary row files
-    n_cores = mp.cpu_count()
-    core_pool = mp.Pool(processes=n_cores)
-    core_pool.starmap(write_row, 
-                     zip(itertools.repeat(complex_frame),
-                         itertools.repeat(list_tuple),
-                         itertools.repeat(par_set),
-                         range_enumeration))
-    core_pool.close()
-    core_pool.join()
+        # allocate parallel pool, call multiprocessing.starmap() to write temporary row files
+        n_cores = mp.cpu_count()
+        core_pool = mp.Pool(processes=n_cores)
+        core_pool.starmap(write_row,
+                         zip(itertools.repeat(complex_frame),
+                             itertools.repeat(list_tuple),
+                             itertools.repeat(par_set),
+                             range_enumeration))
+        core_pool.close()
+        core_pool.join()
 
-    # collect, assemble and cleanup the temporary row files
-    Z0, Z, ET = assemble_rows(par_set)
-    if delete_temp_dir: remove_tmp_dir(par_set['tmp_dir'])
+        # collect, assemble and cleanup the temporary row files
+        Z0, Z, ET = assemble_rows(par_set)
 
     return ET, Z, Z0
 
@@ -200,7 +196,8 @@ def tuplerator_3(list_tuple, Z0, it_max, max_d, par_set):
         return ET, Z
     else:
         return max(1, ET - 1), Z_was
-        
+
+
 def tuplerator_2(list_tuple, Z0, it_max, max_d):
     """ see tuplerator comments """
     ET = 0
@@ -224,6 +221,7 @@ def tuplerator_2(list_tuple, Z0, it_max, max_d):
         return ET, Z
     else:
         return max(1, ET - 1), Z_was
+
 
 def tuplerator(list_tuple, Z0, it_max, max_d):
     """ ET, Z = tuplerator(list_tuple, Z0, it_max, max_d)
@@ -264,10 +262,8 @@ def tuplerator(list_tuple, Z0, it_max, max_d):
         return ET, Z
     else:
         return max(1, ET - 1), Z_was
-    
-    
-    
-    
+
+
 def ahora_seq_name(prefi_str=None, suffi_str=None):
     """ alpha_time_stamped_name = ahora_seq_name(prefi_str, suffi_str)
         locally unique (1/1e12 sec) alphanumeric-integer time stamp name
@@ -327,42 +323,3 @@ def seq_time_id_string(time_units=1e6):
         tid_str:     current time in time_units as an integer encoded in a base 26 caps string
     """
     return int_to_alpha(int(time.time() * np.maximum(np.minimum(time_units, 1e9), 1)))
-
-
-def get_tmp_dir(dir_path, dir_name, timestamp=None):
-    """ new_dir_name = get_tmp_dir(dir_path, dir_name, timestamp)
-        create a "dir_name" with time stamp directory
-
-    Args:
-        dir_path:       an existing directory such as the run directory.
-        dir_name:       new directory name to add to dir_path directory.
-        timestamp:      optional - if not input a microsecond stamp will be added.
-    Returns:
-        new_dir_name:   name of directory just created
-    """
-    if timestamp is None:
-        timestamp = seq_time_id_string()
-    new_dir_name = os.path.join(dir_path, dir_name + timestamp)
-    os.mkdir(new_dir_name)
-
-    return new_dir_name
-
-
-def remove_tmp_dir(dir_name):
-    """ remove_tmp_dir(dir_name)
-        remove the directory and all the files it contains.
-
-    Args:
-        dir_name: name of a directory with no sub-directories.
-    """
-    try:
-        dir_list = os.listdir(dir_name)
-        if len(dir_list) > 0:
-            for file_name in dir_list:
-                os.remove(os.path.join(dir_name, file_name))
-        os.rmdir(dir_name)
-    except:
-        print('function remove_tmp_dir:\n%s\n(directory DNE)' % (dir_name))
-        pass
-
-    return
