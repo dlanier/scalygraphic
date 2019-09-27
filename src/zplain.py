@@ -36,9 +36,9 @@ def get_frame_from_dict(def_dict=None):
     complex_frame = get_complex_frame(
         def_dict['center_point'],
         def_dict['zoom'],
-        def_dict['theta'])
-        # def_dict['n_rows'],
-        # def_dict['n_cols'])
+        def_dict['theta'],
+        def_dict['n_rows'],
+        def_dict['n_cols'])
 
     return complex_frame
 

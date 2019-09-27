@@ -24,7 +24,6 @@ sys.path.insert(0, 'scalygraphic/src/')
 import zplain as zp
 import eq_iter
 import deg_0_ddeq
-# import numcolorpy as ncp
 import impute_color as ncp
 
 """     Constants (lookups):
@@ -211,6 +210,8 @@ def get_random_domain(bounds_dict=None):
     domain_dict['center_point'] = m*np.exp(r)
     domain_dict['zoom'] = np.random.uniform(low=ZM_limits['min'], high=ZM_limits['max'])
     domain_dict['theta'] = np.random.uniform(low=theta_limits['min'], high=theta_limits['max'])
+    domain_dict['n_rows'] = 255
+    domain_dict['n_cols'] = 255
     
     return domain_dict
 
