@@ -255,6 +255,12 @@ def hash_parameters(domain_dict, fcn_name, p):
     
     s += p_str
     
+    if 'it_max' in domain_dict:
+        s += '\n%s: %i\n'%('it_max',domain_dict['it_max'])
+
+    if 'max_d' in domain_dict:
+        s += '\n%s: %0.6f\n'%('max_d',domain_dict['max_d'])
+
     return sha256sum(s)
 
 
