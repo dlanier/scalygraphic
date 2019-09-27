@@ -19,4 +19,5 @@ scale_dist:           10
 #                               small_scale,
 #                               large_scale,
 #                               results_directory,
-#                               hash_list )
+#                               hash_list,
+#                               greyscale=False )
