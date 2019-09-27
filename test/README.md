@@ -2,11 +2,12 @@
 ```
 make env_setup
 ```
-Edit ../../create_scaled_image_set.yml (copied in step 1) to set:
+Edit ../../create_scaled_image_set.yml (copied by env above) to set:
 * the number of image sets
 * scale sizes 
 * results dir
 * any others execpt "method"
+
 ```
 make run_scaled_images_dataset
 ```
