@@ -80,6 +80,42 @@ def get_default_run_parameters(results_dir=None):
     return run_parameters
 
 
+def scaled_images_dataset(run_parameters):
+    """ assemble input arguments and call scaled_images_dataset() function
+    Args:
+        run_parameters:   input arguments for write_n_image_sets
+
+    Returns:
+        nothing:
+    """
+    number_of_image_sets = run_parameters['number_of_image_sets']
+    it_max = run_parameters['it_max']
+    scale_dist = run_parameters['scale_dist']
+    small_scale = [run_parameters['small_scale_rows'], run_parameters['small_scale_cols']]
+    large_scale = [run_parameters['large_scale_rows'], run_parameters['large_scale_cols']]
+    results_directory = run_parameters['results_directory']
+    if not ('greyscale' in run_parameters and run_parameters['greyscale'] == True):
+        run_parameters['greyscale'] = False
+    else:
+        run_parameters['greyscale'] = True
+
+    if 'hash_list' in run_parameters:
+        hash_list = run_parameters['hash_list']
+        # read & saving hash list function pending
+    else:
+        hash_list = []
+
+    hash_list = write_n_image_sets(number_of_image_sets,
+                                   it_max,
+                                   scale_dist,
+                                   small_scale,
+                                   large_scale,
+                                   results_directory,
+                                   hash_list)
+
+    print('\n%i pairs written \n'%(len(hash_list)))
+
+
 def get_default_iteration_dict(iteration_dict=None):
     if iteration_dict is None:
         iteration_dict = {}
@@ -234,36 +270,36 @@ def now_name(prefi_str=None, suffi_str=None):
         
     return prefi_str + '_' + ahora_nombre + suffi_str
 
-def scaled_images_dataset(run_parameters):
-    """ assemble input arguments and call scaled_images_dataset() function
-    Args:
-        run_parameters:   input arguments for write_n_image_sets
-
-    Returns:
-        nothing:
-    """
-    number_of_image_sets = run_parameters['number_of_image_sets']
-    it_max = run_parameters['it_max']
-    scale_dist = run_parameters['scale_dist']
-    small_scale = [run_parameters['small_scale_rows'], run_parameters['small_scale_cols']]
-    large_scale = [run_parameters['large_scale_rows'], run_parameters['large_scale_cols']]
-    results_directory = run_parameters['results_directory']
-
-    if 'hash_list' in run_parameters:
-        hash_list = run_parameters['hash_list']
-        # read & saving hash list function pending
-    else:
-        hash_list = []
-
-    hash_list = write_n_image_sets(number_of_image_sets,
-                                   it_max,
-                                   scale_dist,
-                                   small_scale,
-                                   large_scale,
-                                   results_directory,
-                                   hash_list)
-
-    print('\n%i pairs written \n'%(len(hash_list)))
+# def scaled_images_dataset(run_parameters):
+#     """ assemble input arguments and call scaled_images_dataset() function
+#     Args:
+#         run_parameters:   input arguments for write_n_image_sets
+#
+#     Returns:
+#         nothing:
+#     """
+#     number_of_image_sets = run_parameters['number_of_image_sets']
+#     it_max = run_parameters['it_max']
+#     scale_dist = run_parameters['scale_dist']
+#     small_scale = [run_parameters['small_scale_rows'], run_parameters['small_scale_cols']]
+#     large_scale = [run_parameters['large_scale_rows'], run_parameters['large_scale_cols']]
+#     results_directory = run_parameters['results_directory']
+#
+#     if 'hash_list' in run_parameters:
+#         hash_list = run_parameters['hash_list']
+#         # read & saving hash list function pending
+#     else:
+#         hash_list = []
+#
+#     hash_list = write_n_image_sets(number_of_image_sets,
+#                                    it_max,
+#                                    scale_dist,
+#                                    small_scale,
+#                                    large_scale,
+#                                    results_directory,
+#                                    hash_list)
+#
+#     print('\n%i pairs written \n'%(len(hash_list)))
 
 def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
                        small_scale, large_scale,

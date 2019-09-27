@@ -154,7 +154,8 @@ def raw_graphic_norm(Z0, Z, ET):
     Zr = graphic_norm(np.arctan2(np.imag(Zv), np.real(Zv)))
     
     return Zd, Zr, ETn
-    
+
+
 def etg_norm(Z0, Z, ET):
     """ Zd, Zr, ETn = etg_norm(Z0, Z, ET); Graphically usable matrices from escape time algorithm result 
     Args:
@@ -239,31 +240,9 @@ def flat_index(float_mat):
     return float_mat, n_colors
 
 
-def im_map(imfile_name, cmap_name='gist_gray', thumb_size=None):
-    """ im = im_map(imfile_name, cmap_name='gist_gray', thumb_size=None)
-    """
-    if isinstance(cmap_name, LinearSegmentedColormap):
-        cm_hot = cmap_name
-    else:
-        cm_hot = mpl.cm.get_cmap(cmap_name)
-        
-    img_src = tip.Image.open(imfile_name).convert('L')
-    
-    if not thumb_size is None:
-        img_src.thumbnail((thumb_size[0],thumb_size[1]))
-        
-    im = np.array(img_src)
-    im = cm_hot(im)
-    im = np.uint8(im * 255)
-    im = tip.Image.fromarray(im)
-    
-    return im
-
-
-def get_grey_thumb(imfile_name):
+def get_grey_thumb(imfile_name, thumb_size=(128, 128)):
     """ im = get_grey_thumb(imfile_name):
     """
-    thumb_size = (512,512)
     c_map = mpl.cm.get_cmap('Greys')
     img_src = tip.Image.open(imfile_name).convert('L')
     img_src.thumbnail(thumb_size)
@@ -274,37 +253,16 @@ def get_grey_thumb(imfile_name):
     
     return im
 
-def get_etg_im(ET, Z, Z0):
-    """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
-    ETn         normalized escape time matrix           Hue
-    Zr          normalized rotation of |Z - Z0|         Saturation
-    Zd          normalized magnitude of |Z - Z0|        Value
-    
-    Args:
-        ET:     (Integer) matrix of the Escape Times    
-        Z:      (complex) matrix of the final vectors   
-        Z0:     (complex) matrix of the starting plane
-        
-    Returns:
-        I:      RGB PIL image
-
-    """
-    n_rows = Z0.shape[0]
-    n_cols = Z0.shape[1]
-    
-    Zd, Zr, ETn = etg_norm(Z0, Z, ET)
-    Zd, Zr, ETn = etg_norm(Z0, Z, ET)
-
-    A = np.zeros((n_rows, n_cols,3))
-    A[:,:,0] += ETn     # Hue
-    A[:,:,1] += Zr      # Saturation
-    A[:,:,2] += Zd      # Value
-    
-    I = tip.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
-    
-    return I
 
 def primitive_2_gray(P):
+    """
+    Args:
+         P:     Single layer matrix ET or abs(Z - Z0) etc.
+
+    Returns:
+        I:      grayscale image
+
+    """
     n_rows = P.shape[0]
     n_cols = P.shape[1]
     
@@ -318,10 +276,17 @@ def primitive_2_gray(P):
     return I
 
 def map_raw_etg(Z0, Z, ET, c_map_name='afmhot'):
-    
-    n_rows = ET.shape[0]
-    n_cols = ET.shape[1]
+    """ get a color-mapped image of normalized distance
 
+    Args:
+        ET:     (Integer) matrix of the Escape Times
+        Z:      (complex) matrix of the final vectors
+        Z0:     (complex) matrix of the starting plane
+
+    Returns:
+        I:      RGB PIL image
+
+    """
     Zd, Zr, ETn = etg_norm(Z0, Z, ET)
     
     c_map = mpl.cm.get_cmap(c_map_name)
@@ -332,7 +297,17 @@ def map_raw_etg(Z0, Z, ET, c_map_name='afmhot'):
     return im
 
 def map_etg_composite(Z0, Z, ET, c_map_name='afmhot'):
-    im = np.array(get_etg_im(ET, Z, Z0).convert('L'))
+    """ get an RGB image of HSV composite index to color map
+
+    Args:
+        ET:     (Integer) matrix of the Escape Times
+        Z:      (complex) matrix of the final vectors
+        Z0:     (complex) matrix of the starting plane
+
+    Returns:
+        I:      RGB PIL image
+    """
+    im = np.array(get_im(ET, Z, Z0).convert('L'))
 
     c_map = mpl.cm.get_cmap(c_map_name)
     im = c_map(im)
@@ -342,6 +317,34 @@ def map_etg_composite(Z0, Z, ET, c_map_name='afmhot'):
     
     return im
 
+
+def im_file_map(imfile_name, cmap_name='hot', thumb_size=None):
+    """ open an image file and color map it
+
+    Args:
+        imfile_name:    RGB or Greyscale image
+        cmap_name:      name of a matplotlib color map
+        (thumb_size):   thumnail image size eg (128, 128)
+
+    Returns:
+        I:              tif image
+    """
+    if isinstance(cmap_name, LinearSegmentedColormap):
+        cm_hot = cmap_name
+    else:
+        cm_hot = mpl.cm.get_cmap(cmap_name)
+
+    img_src = tip.Image.open(imfile_name).convert('L')
+
+    if not thumb_size is None:
+        img_src.thumbnail((thumb_size[0], thumb_size[1]))
+
+    im = np.array(img_src)
+    im = cm_hot(im)
+    im = np.uint8(im * 255)
+    im = tip.Image.fromarray(im)
+
+    return im
 
 def get_im(ET, Z, Z0):
     """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
@@ -369,6 +372,7 @@ def get_im(ET, Z, Z0):
     I = tip.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
     
     return I
+
 
 def get_gray_im(ET, Z, Z0):
     """ get a gray-scale image from the products of the escape-time-algorithm

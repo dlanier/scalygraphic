@@ -13,6 +13,8 @@ results_directory:    ./run_dir/results
 it_max:               64
 scale_dist:           10
 
+greyscale:            False
+
 #hashlist = write_n_image_sets( number_of_image_sets,
 #                               it_max,
 #                               scale_dist,
