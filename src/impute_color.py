@@ -19,7 +19,7 @@ ColorImputationUnderstandingNotebook.ipynb
 
 
 #                       Create new color map from dict:
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
 cdict = {'red':   [[0.0,  0.0, 0.0],
                    [0.5,  1.0, 1.0],
@@ -41,7 +41,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap
 
 from PIL import TiffImagePlugin as tip
 
@@ -103,6 +103,7 @@ def show_color_maps(n_cols=5):
         print(s)
 
 
+"""                                                                    Normalize                                     """
 def raw_graphic_norm(Z0, Z, ET):
     """ Zd, Zr, ETn = raw_graphic_norm(Z0, Z, ET)
     noramize escape time algorithm output for color mapping input
@@ -236,6 +237,8 @@ def range_norm(Z, lo=0.0, hi=1.0):
 
     return I
 
+
+"""                                                                    Impute Color                                  """
 
 def get_grey_thumb(imfile_name, thumb_size=(128, 128)):
     """ im = get_grey_thumb(imfile_name):
@@ -386,3 +389,31 @@ def get_gray_im(ET, Z, Z0):
         I:      grayscale PIL image
     """
     return get_im(Z0, Z, ET).convert('L')
+
+"""
+#            to do:     Sort out the ugly details s.t. a natural color specification will produce
+#                       images with photo-like histograms
+                        
+nat_spec_struct = { 'hsv_assingment': { 'hue': ['ET'], 
+                                        'saturation': ['ET', 'Zd', 'Zr'], 
+                                        'value': ['Zd']},
+                    'hue': [v_low, v_high],
+                    'saturation': [v_low, v_high], 
+                    'value': [v_low, v_high], 
+                    'c_map': [nx3 array] }
+                    
+def imp_natcho_color(ET, Z, Z0, nat_spec_struct):
+    
+    #                   Get the Hue channel by mapping the hue choice 
+    #                   im = c_map(ET_normalized)                     ?? call mpl.cm.get_cmap direct ??
+    G = np.array( primitive_2_gray(ET) )
+    N = np.maximum(ET) + 1
+    c_dict = nat_spec_struct['c_map']
+    c_map_lcl = LinearSegmentedColormap('c_map_lcl', segmentdata=c_dict, N)
+    # c_map = mpl.cm.get_cmap(c_map_name)
+    im = c_map(G)
+    im = np.uint8(im * 255)
+    im = tip.Image.fromarray(im).convert('HSV')
+    #        , ...
+    
+"""
