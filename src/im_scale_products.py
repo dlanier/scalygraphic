@@ -254,7 +254,7 @@ def hash_parameters(domain_dict, fcn_name, p):
         p_str = zp.complex_to_string(p, N_DEC)
     
     s += p_str
-    
+
     if 'it_max' in domain_dict:
         s += '\n%s: %i\n'%('it_max',domain_dict['it_max'])
 

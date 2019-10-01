@@ -1,33 +1,51 @@
 """
 impute_color.py
+initial commit late September 2019
 
-Collected functions to assign color to products of algebraic vector iteration
 
-replacement with improvements for numcolor.py 
-    - keep normalization routines, 
-    - extend color mapping
-    - improve integer, complex pairs to HSV to RGB (to grey)
-    
+Extending old code from FlyingMachineFractal/src/numcolor.py
+- keep normalization routines,
+- extend color mapping
+- improve integer, complex pairs to HSV to RGB (to grey)
+
+Assign color to Normalized algebraic vectors (Z0, Z, ET)
+Z0  = start vector matrix (complex)
+Z   = final vector matrix (complex)
+ET  = number of iterations (positive integer)
+
+        WhyFor the code:
+NormalizationUnderstandingNotebook.ipynb
+ColorImputationUnderstandingNotebook.ipynb
+
+
+#                       Create new color map from dict:
+from matplotlib.colors import LinearSegmentedColormap
+
+cdict = {'red':   [[0.0,  0.0, 0.0],
+                   [0.5,  1.0, 1.0],
+                   [1.0,  1.0, 1.0]],
+         'green': [[0.0,  0.0, 0.0],
+                   [0.25, 0.0, 0.0],
+                   [0.75, 1.0, 1.0],
+                   [1.0,  1.0, 1.0]],
+         'blue':  [[0.0,  0.0, 0.0],
+                   [0.5,  0.0, 0.0],
+                   [1.0,  1.0, 1.0]]}
+
+testCmap = LinearSegmentedColormap('testCmap', segmentdata=cdict, N=256)
+
+#                       get matplotlib Named colormaps:
+c_map = matplotlib.cm.get_cmap(c_map_name)
 """
-import os
-import time
-from collections import OrderedDict
-
 import numpy as np
 
 import matplotlib as mpl
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
-from PIL import Image as IP
-from PIL import ImageColor as IC
 from PIL import TiffImagePlugin as tip
 
-"""  get Named colormaps:
-                                c_map = matplotlib.cm.get_cmap(c_map_name)
-"""
+#                       Define lists of matplotlib named color maps by type
 cmaps = {}
 cmaps['Perceptually_Uniform_Sequential'] = ['viridis', 'plasma', 'inferno', 'magma', 'cividis']
 
@@ -52,36 +70,6 @@ cmaps['Miscellaneous'] = ['flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gi
                           'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
                           'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
 
-cmap_list = []
-
-for k, v in cmaps.items():
-    for vv in v:
-        cmap_list.append(vv)
-
-cmap_list = sorted(list(set(cmap_list)))
-
-# print(len(cmap_list), 'color maps available')
-
-"""  
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
-# get Named colormaps:
-c_map = matplotlib.cm.get_cmap(c_map_name)
-
-cdict = {'red':   [[0.0,  0.0, 0.0],
-                   [0.5,  1.0, 1.0],
-                   [1.0,  1.0, 1.0]],
-         'green': [[0.0,  0.0, 0.0],
-                   [0.25, 0.0, 0.0],
-                   [0.75, 1.0, 1.0],
-                   [1.0,  1.0, 1.0]],
-         'blue':  [[0.0,  0.0, 0.0],
-                   [0.5,  0.0, 0.0],
-                   [1.0,  1.0, 1.0]]}
-
-newcmp = LinearSegmentedColormap('testCmap', segmentdata=cdict, N=256)
-
-"""
-
 def show_color_maps(n_cols=5):
     """ print the matplotlib color map names available in this module
     
@@ -89,9 +77,16 @@ def show_color_maps(n_cols=5):
         n_cols: number of columns to display in each row of the list
         
     """
+    #               cmap_list: sorted unique list of all available matplotlib named color maps
+    cmap_list = []
+    for k, v in cmaps.items():
+        for vv in v:
+            cmap_list.append(vv)
+    cmap_list = sorted(list(set(cmap_list)))
+
+    #               display the list of available maps
     acum = []
-    for m in sorted(cmap_list):
-        #print(m)
+    for m in cmap_list:
         if len(acum) < n_cols:
             acum.append(m)
         else:
@@ -100,38 +95,13 @@ def show_color_maps(n_cols=5):
                 s += '%18s'%(a)
             print(s)
             acum = []
+
     if len(acum) > 0:
         s = ''
         for a in acum:
             s += '%18s'%(a)
         print(s)
 
-
-def range_norm(Z, lo=0.0, hi=1.0):
-    """ normaize input matrix Z within a lo - hi range
-    
-    Args:
-        Z:        real or complex matrix
-        lo:       smallest value in output range
-        hi:       largest value in output range
-        
-    Returns:
-        I:        matrix of size Z, normalized to the range of (lo, hi)
-        
-    """
-    I = graphic_norm(Z)
-    hi = max(min(hi, 1.0), 0.0)
-    lo = min(max(lo, 0.0), 1.0)
-    low_fence = min(hi, lo)
-    hi_fence = max(hi, lo)
-
-    if low_fence == hi_fence:
-        return I
-    
-    v_span = hi_fence - low_fence
-    I = I * v_span + low_fence
-    
-    return I
 
 def raw_graphic_norm(Z0, Z, ET):
     """ Zd, Zr, ETn = raw_graphic_norm(Z0, Z, ET)
@@ -240,6 +210,33 @@ def flat_index(float_mat):
     return float_mat, n_colors
 
 
+def range_norm(Z, lo=0.0, hi=1.0):
+    """ normaize input matrix Z within a lo - hi range
+
+    Args:
+        Z:        real or complex matrix
+        lo:       smallest value in output range
+        hi:       largest value in output range
+
+    Returns:
+        I:        matrix of size Z, normalized to the range of (lo, hi)
+
+    """
+    I = graphic_norm(Z)
+    hi = max(min(hi, 1.0), 0.0)
+    lo = min(max(lo, 0.0), 1.0)
+    low_fence = min(hi, lo)
+    hi_fence = max(hi, lo)
+
+    if low_fence == hi_fence:
+        return I
+
+    v_span = hi_fence - low_fence
+    I = I * v_span + low_fence
+
+    return I
+
+
 def get_grey_thumb(imfile_name, thumb_size=(128, 128)):
     """ im = get_grey_thumb(imfile_name):
     """
@@ -275,6 +272,7 @@ def primitive_2_gray(P):
     
     return I
 
+
 def map_raw_etg(Z0, Z, ET, c_map_name='afmhot'):
     """ get a color-mapped image of normalized distance
 
@@ -295,6 +293,7 @@ def map_raw_etg(Z0, Z, ET, c_map_name='afmhot'):
     im = tip.Image.fromarray(im)
     
     return im
+
 
 def map_etg_composite(Z0, Z, ET, c_map_name='afmhot'):
     """ get an RGB image of HSV composite index to color map
@@ -345,6 +344,7 @@ def im_file_map(imfile_name, cmap_name='hot', thumb_size=None):
     im = tip.Image.fromarray(im)
 
     return im
+
 
 def get_im(ET, Z, Z0):
     """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
