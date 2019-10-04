@@ -390,6 +390,27 @@ def get_gray_im(ET, Z, Z0):
     """
     return get_im(Z0, Z, ET).convert('L')
 
+
+def cat_im_list_hori(im_list):
+    """ combine a list of images horizontaly
+    """
+    h = 0
+    w = 0
+    for im in im_list:
+        w += im.size[0]
+        h = max(h, im.size[1])
+
+    new_im = tip.Image.new('L', (w, h), color=0)
+    start_col = 0
+    for im in im_list:
+        end_col = start_col + im.size[0]
+        box = (start_col, 0, end_col, h)
+
+        new_im.paste(im, box)
+        start_col = end_col + 1
+
+    return new_im
+
 """
 #            to do:     Sort out the ugly details s.t. a natural color specification will produce
 #                       images with photo-like histograms
