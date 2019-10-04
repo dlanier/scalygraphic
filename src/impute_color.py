@@ -411,6 +411,26 @@ def cat_im_list_hori(im_list):
 
     return new_im
 
+
+def cat_im_list_verti(im_list):
+    """ combine a list of images vertically
+    """
+    h = 0
+    w = 0
+    for im in im_list:
+        h += im.size[1]
+        w = max(w, im.size[0])
+
+    new_im = tip.Image.new('L', (w, h), color=0)
+    start_row = 0
+    for im in im_list:
+        end_row = start_row + im.size[0]
+        box = (0, start_row, w, end_row)
+        new_im.paste(im, box)
+        start_row = end_row + 1
+
+    return new_im
+
 """
 #            to do:     Sort out the ugly details s.t. a natural color specification will produce
 #                       images with photo-like histograms
