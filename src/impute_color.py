@@ -42,6 +42,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import cm
 from matplotlib.colors import LinearSegmentedColormap
+# import matplotlib.pyplot as pyplot
 
 from PIL import TiffImagePlugin as tip
 
@@ -389,6 +390,53 @@ def get_gray_im(ET, Z, Z0):
         I:      grayscale PIL image
     """
     return get_im(Z0, Z, ET).convert('L')
+
+
+def pil_rgb_2_uint16_gray(rgb_im):
+    """ convert a pillow rgb image to an unsigned 16 bit numpy array
+            - suitable for skimage.io.imsave
+            - suitable for matplotlib color mapping
+
+    Args:
+        rgb_im:     PIL rgb image
+
+    Returns:
+        gray_int:   numpy.ndarray of uint16 (0, 65535)
+    """
+    rgb_im.getdata()
+    r, g, b = rgb_im.split()
+
+    ra = np.array(r)
+    ga = np.array(g)
+    ba = np.array(b)
+
+    bit_depth = 2 ** 16 - 1
+
+    R2g = 0.299
+    G2g = 0.587
+    B2g = 0.114
+
+    gray_int = np.uint16((R2g * ra + G2g * ga + B2g * ba) * bit_depth)
+
+    return gray_int
+
+
+def get_uint16_gray(ET, Z, Z0):
+    """  convert results data (ET, Z, Z0) to an unsigned 16 bit numpy array
+            - Write with: skimage.io.imsave(f_name, gray_int)
+            - colo map with matplotlib.cm
+    Args:
+        ET:     (Integer) matrix of the Escape Times
+        Z:      (complex) matrix of the final vectors
+        Z0:     (complex) matrix of the starting plane
+
+    Returns:
+        gray_16bit:     numpy.ndarray (16 bit integer)
+    """
+    img = get_im(ET, Z, Z0)
+    gray_int = pil_rgb_2_uint16_gray(img)
+
+    return gray_int
 
 
 def cat_im_list_hori(im_list):

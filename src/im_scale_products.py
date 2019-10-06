@@ -17,6 +17,8 @@ import inspect
 import numpy as np
 import yaml
 
+import skimage.io as im_io
+
 # development running from clone-mount directory or (this) src dir
 sys.path.insert(0, '../src/')
 sys.path.insert(0, 'scalygraphic/src/')
@@ -92,10 +94,12 @@ def scaled_images_dataset(run_parameters):
     small_scale = [run_parameters['small_scale_rows'], run_parameters['small_scale_cols']]
     large_scale = [run_parameters['large_scale_rows'], run_parameters['large_scale_cols']]
     results_directory = run_parameters['results_directory']
-    if not ('greyscale' in run_parameters and run_parameters['greyscale'] == True):
-        run_parameters['greyscale'] = False
+
+    if 'greyscale' in run_parameters:
+        greyscale = run_parameters['greyscale']
     else:
-        run_parameters['greyscale'] = True
+        greyscale = False
+        run_parameters['greyscale'] = greyscale
 
     if 'hash_list' in run_parameters:
         hash_list = run_parameters['hash_list']
@@ -109,7 +113,8 @@ def scaled_images_dataset(run_parameters):
                                    small_scale,
                                    large_scale,
                                    results_directory,
-                                   hash_list)
+                                   hash_list,
+                                   greyscale)
 
     print('\n%i pairs written \n'%(len(hash_list)))
 
@@ -318,6 +323,7 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
     else:
         print('new hash list started')
 
+    k_do = 0
     for k_do in range(number_of_image_sets):
         fcn_name, eq, p = get_rand_eq_p_set()
         domain_dict = get_random_domain()
@@ -339,26 +345,29 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
             t0 = time.time()
             ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
 
+            file_name = os.path.join(results_directory, hash_idx + '_' + 'small.tif')
             if greyscale == True:
-                I = ncp.get_gray_im(ET, Z, Z0)
+                # requires tiff
+                I = ncp.get_uint16_gray(ET, Z, Z0)
+                im_io.imsave(file_name, I)
             else:
                 I = ncp.get_im(ET, Z, Z0)
-
-            file_name = os.path.join(results_directory, hash_idx + '_' + 'small.jpg')
-            I.save(file_name)
+                I.save(file_name)
 
             domain_dict['n_rows'] = large_scale[0]
             domain_dict['n_cols'] = large_scale[1]
 
             ET, Z, Z0 = eq_iter.get_primitives(list_tuple, domain_dict)
 
+            file_name = os.path.join(results_directory, hash_idx + '_' + 'large.tif')
             if greyscale == True:
-                I = ncp.get_gray_im(ET, Z, Z0)
+                # requires tiff
+                I = ncp.get_uint16_gray(ET, Z, Z0)
+                im_io.imsave(file_name, I)
             else:
                 I = ncp.get_im(ET, Z, Z0)
+                I.save(file_name)
 
-            file_name = os.path.join(results_directory, hash_idx + '_' + 'large.jpg')
-            I.save(file_name)
             print('\n%3i of %3i) %s\t\t'%(k_do+1, number_of_image_sets, fcn_name),
                   '%0.3f seconds (large & small image written)\n'%(time.time() - t0),
                   hash_idx)
