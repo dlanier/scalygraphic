@@ -18,3 +18,5 @@ it_max:               64
 scale_dist:           10
 
 greyscale:            False
+
+use_one_eq:           False

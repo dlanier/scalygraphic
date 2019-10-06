@@ -101,6 +101,12 @@ def scaled_images_dataset(run_parameters):
         greyscale = False
         run_parameters['greyscale'] = greyscale
 
+    if 'use_one_eq' in run_parameters:
+        use_one_eq = run_parameters['use_one_eq']
+    else:
+        use_one_eq = False
+        run_parameters['use_one_eq'] = use_one_eq
+
     if 'hash_list' in run_parameters:
         hash_list = run_parameters['hash_list']
         # read & saving hash list function pending
@@ -114,7 +120,8 @@ def scaled_images_dataset(run_parameters):
                                    large_scale,
                                    results_directory,
                                    hash_list,
-                                   greyscale)
+                                   greyscale,
+                                   use_one_eq)
 
     print('\n%i pairs written \n'%(len(hash_list)))
 
@@ -291,7 +298,7 @@ def now_name(prefi_str=None, suffi_str=None):
 
 def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
                        small_scale, large_scale,
-                       results_directory, hash_list, greyscale=False):
+                       results_directory, hash_list, greyscale=False, use_one_eq=False):
     """ calculate and write a set of unique images at two scales
     Args:
         number_of_image_sets:   number of pairs of images
@@ -324,10 +331,12 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
         print('new hash list started')
 
     k_do = 0
+    fcn_name, eq, p = get_rand_eq_p_set()
     for k_do in range(number_of_image_sets):
-        fcn_name, eq, p = get_rand_eq_p_set()
-        domain_dict = get_random_domain()
+        if use_one_eq == False:
+            fcn_name, eq, p = get_rand_eq_p_set()
 
+        domain_dict = get_random_domain()
         domain_dict['it_max'] = it_max
         domain_dict['max_d'] = scale_dist / domain_dict['zoom']
 
@@ -338,7 +347,6 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
             hash_list.append(hash_idx)
             domain_dict['n_rows'] = small_scale[0]
             domain_dict['n_cols'] = small_scale[1]
-            # domain_dict['dir_path'] = test_temporary_dir
 
             list_tuple = [(eq, (p))]
 
@@ -347,8 +355,8 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
 
             file_name = os.path.join(results_directory, hash_idx + '_' + 'small.tif')
             if greyscale == True:
-                # requires tiff
                 I = ncp.get_uint16_gray(ET, Z, Z0)
+                #                   requires tiff (else cast to 8 bit with warn you)
                 im_io.imsave(file_name, I)
             else:
                 I = ncp.get_im(ET, Z, Z0)
@@ -361,8 +369,8 @@ def write_n_image_sets(number_of_image_sets, it_max, scale_dist,
 
             file_name = os.path.join(results_directory, hash_idx + '_' + 'large.tif')
             if greyscale == True:
-                # requires tiff
                 I = ncp.get_uint16_gray(ET, Z, Z0)
+                #                   requires tiff (else cast to 8 bit with warn you)
                 im_io.imsave(file_name, I)
             else:
                 I = ncp.get_im(ET, Z, Z0)
