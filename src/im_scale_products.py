@@ -30,11 +30,11 @@ import impute_color as ncp
 
 """     Constants (lookups):
 
-        EQUS_DICT is an enumerated dictionary of the functions in module deg_0_ddeq
-        EQUS_DICT_NAMED_IDX is a dictionary index {name: enumeration_number} of EQUS_DICT
+        name_functionhandle_dict is an enumerated dictionary of the function_name: function_handle
+        number_function_name_dict is a dictionary index {name: enumeration_number} of name_functionhandle_dict
 """
-EQUS_DICT = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
-EQUS_DICT_NAMED_IDX = {v[0]: k for k, v in EQUS_DICT.items()}
+name_functionhandle_dict = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
+number_function_name_dict = {v[0]: k for k, v in name_functionhandle_dict.items()}
 
 def get_run_directory_and_run_file(args):
     """ Parse the input arguments to get the run_directory and run_file
@@ -168,8 +168,8 @@ def get_rand_eq_p_set():
     Returns:
         tuple:      (function_name, function_handle, parameter_set)
     """
-    n = np.random.randint(0,len(EQUS_DICT),1)
-    fcn_name, fcn = EQUS_DICT[n[0]]
+    n = np.random.randint(0,len(name_functionhandle_dict),1)
+    fcn_name, fcn = name_functionhandle_dict[n[0]]
     p = fcn(0.0, None)
 
     return (fcn_name, fcn, p)
@@ -185,8 +185,8 @@ def get_eq_by_name(fcn_name):
         fcn_handle: callable function Z = fcn_name(Z, p, (Z0), (ET))
         
     """
-    if fcn_name in EQUS_DICT_NAMED_IDX:
-        return EQUS_DICT[EQUS_DICT_NAMED_IDX[fcn_name]][1]
+    if fcn_name in number_function_name_dict:
+        return name_functionhandle_dict[number_function_name_dict[fcn_name]][1]
     else:
         return None
 
