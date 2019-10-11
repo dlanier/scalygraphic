@@ -13,6 +13,7 @@ import argparse
 import time
 import hashlib
 import inspect
+import traceback
 
 import numpy as np
 import yaml
@@ -35,6 +36,30 @@ import impute_color as ncp
 """
 name_functionhandle_dict = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
 number_function_name_dict = {v[0]: k for k, v in name_functionhandle_dict.items()}
+
+def get_traceback_bottom_line(S):
+    """ S = traceback.extract_stack()
+    Args:       S
+    Returns:
+        file_name:
+        function_name:
+        line_num:
+    """
+    s_list = str(S[-1]).strip().split('.py')
+    file_name = s_list[0].split(os.sep)[-1] + '.py'
+    f_name = s_list[-1].strip().split(' in ')[-1].strip().strip('>') + '()'
+    line_num = s_list[1].strip().split(' ')[2]
+
+    return file_name, f_name, line_num
+
+def show_equations():
+    """
+    display the numbered dict of imported equations
+    """
+    file_name, f_name, line_num = get_traceback_bottom_line(traceback.extract_stack())
+    print('\n\t%s with function %s:\n\n\tname_functionhandle_dict.items()'%(file_name, f_name))
+    for n, t in name_functionhandle_dict.items():
+        print('%03i' % (n), t)
 
 def get_run_directory_and_run_file(args):
     """ Parse the input arguments to get the run_directory and run_file
