@@ -45,6 +45,7 @@ from matplotlib.colors import LinearSegmentedColormap
 # import matplotlib.pyplot as pyplot
 
 from PIL import TiffImagePlugin as tip
+from PIL import Image
 
 #                       Define lists of matplotlib named color maps by type
 cmaps = {}
@@ -506,3 +507,85 @@ def imp_natcho_color(ET, Z, Z0, nat_spec_struct):
     #        , ...
     
 """
+
+
+def im_diff(im_gray_array, n):
+    """ get the pixels difference as complex vectors
+    Usage: Z = im_diff(im_gray_array, n=1)
+    Args:
+        im_gray_array:  gray scale image as a numpy array
+        n_diff:         level of differences small integer 1 or 2 probably
+
+    Returns:
+        Z:              matrix of complex vectors == dir & magnitude of differences
+
+    """
+    DLR = (im_gray_array[:, n:] - im_gray_array[:, :-n])[n:, :]
+    DUD = (im_gray_array[n:, :] - im_gray_array[:-n, :])[:, n:]
+
+    Z = DLR.astype(np.float) + DUD.astype(np.float) * 1j
+
+    return Z
+
+
+def im_diag_diff(im_gray_array, n=1):
+    """ get the pixel diagonal difference as complex vectors
+    Usage: Z = im_diag_diff(im_gray_array, n)
+    Args:
+        im_gray_array:  gray scale image as a numpy array (uint8)
+        n_diff:         level of differences small integer 1 or 2 probably
+
+    Returns:
+        Z:              matrix of complex vectors == dir & magnitude of differences
+
+    """
+    DLR = (im_gray_array[n:, n:] - im_gray_array[:-n, :-n])
+    DUD = (im_gray_array[:-n, :-n] - im_gray_array[n:, n:])
+
+    Z = DLR.astype(np.float) + DUD.astype(np.float) * 1j
+
+    return Z
+
+
+def im_to_Z(im_gray_array, n=1):
+    """ convert grayscale image into complex vectors of edges using both im_diff and im_diag_diff
+    Usage: Z = im_to_Z(im_gray_array, n)
+
+    Args:
+        im_gray_array:  gray scale image as a numpy array
+        n_diff:         level of differences small integer 1 or 2 probably
+
+    Returns:
+        Z:              matrix of complex vectors == max of the magnitudes
+
+    """
+    Z_ax = im_diff(im_gray_array, n)
+    Zr_ax = np.arctan2(np.real(Z_ax), np.imag(Z_ax))
+
+    Z_dax = im_diag_diff(im_gray_array, n)
+    Zr_dax = np.arctan2(np.real(Z_dax), np.imag(Z_dax))
+
+    Z = np.max(np.abs(Z_dax) + np.abs(Z_ax)) + (Zr_dax + Zr_ax) * 1j
+
+    return Z
+
+
+def complex_mat_to_im(Z):
+    """ image the greater of the normalized magnitude or rotation of complex matrix Z
+    """
+    Zd = np.abs(Z)
+    Zr = np.arctan2(np.real(Z), np.imag(Z))
+
+    return Image.fromarray((mat2graphic(np.maximum(graphic_norm(Zr), graphic_norm(Zd))) * 255).astype(np.uint8))
+
+
+def complex_magnitude_image(Z):
+    """ image of the magnitude of Z """
+    Zd = np.abs(Z)
+    return Image.fromarray((mat2graphic(Zd) * 255).astype(np.uint8))
+
+
+def complex_rotation_image(Z):
+    """ image of the rotation of Z """
+    Zr = np.arctan2(np.real(Z), np.imag(Z))
+    return Image.fromarray((mat2graphic(Zr) * 255).astype(np.uint8))
