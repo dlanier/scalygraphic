@@ -508,8 +508,13 @@ def imp_natcho_color(ET, Z, Z0, nat_spec_struct):
     
 """
 
+"""
+            Image To Complex Matrix
 
-def im_diff(im_gray_array, n):
+"""
+
+
+def im_diff(im_gray_array, n=1):
     """ get the pixels difference as complex vectors
     Usage: Z = im_diff(im_gray_array, n=1)
     Args:
@@ -520,10 +525,10 @@ def im_diff(im_gray_array, n):
         Z:              matrix of complex vectors == dir & magnitude of differences
 
     """
-    DLR = (im_gray_array[:, n:] - im_gray_array[:, :-n])[n:, :]
-    DUD = (im_gray_array[n:, :] - im_gray_array[:-n, :])[:, n:]
+    D_l_r = (im_gray_array[:, n:] - im_gray_array[:, :-n])[n:, :]
+    D_u_d = (im_gray_array[n:, :] - im_gray_array[:-n, :])[:, n:]
 
-    Z = DLR.astype(np.float) + DUD.astype(np.float) * 1j
+    Z = D_l_r.astype(np.float) + D_u_d.astype(np.float) * 1j
 
     return Z
 
@@ -539,10 +544,10 @@ def im_diag_diff(im_gray_array, n=1):
         Z:              matrix of complex vectors == dir & magnitude of differences
 
     """
-    DLR = (im_gray_array[n:, n:] - im_gray_array[:-n, :-n])
-    DUD = (im_gray_array[:-n, :-n] - im_gray_array[n:, n:])
+    D_ul_lr = (im_gray_array[:-n, :-n] - im_gray_array[n:, n:])
+    D_ur_ll = (im_gray_array[n:, :-n] - im_gray_array[:-n, n:])
 
-    Z = DLR.astype(np.float) + DUD.astype(np.float) * 1j
+    Z = D_ul_lr.astype(np.float) * (1 - 1j) + D_ur_ll.astype(np.float) * (-1 - 1j)
 
     return Z
 
@@ -560,32 +565,60 @@ def im_to_Z(im_gray_array, n=1):
 
     """
     Z_ax = im_diff(im_gray_array, n)
-    Zr_ax = np.arctan2(np.real(Z_ax), np.imag(Z_ax))
-
     Z_dax = im_diag_diff(im_gray_array, n)
-    Zr_dax = np.arctan2(np.real(Z_dax), np.imag(Z_dax))
 
-    Z = np.max(np.abs(Z_dax) + np.abs(Z_ax)) + (Zr_dax + Zr_ax) * 1j
+    Z = Z_ax + Z_dax
 
     return Z
 
 
+"""
+            Complex Matrix To Image
+
+"""
+
+
 def complex_mat_to_im(Z):
-    """ image the greater of the normalized magnitude or rotation of complex matrix Z
+    """ image from complex matrix: normalized enumeration of the magnitude of Z as an image
+        (it works - try not to think about it)
+
+    Args:
+        Z:      matrix (numpy array) of complex numbers
+
+    Returns:
+        im:     PIL grayscale image
+
     """
     Zd = np.abs(Z)
     Zr = np.arctan2(np.real(Z), np.imag(Z))
 
-    return Image.fromarray((mat2graphic(np.maximum(graphic_norm(Zr), graphic_norm(Zd))) * 255).astype(np.uint8))
+    im = Image.fromarray((mat2graphic(np.maximum(graphic_norm(Zr), graphic_norm(Zd))) * 255).astype(np.uint8))
+    return im
 
 
 def complex_magnitude_image(Z):
-    """ image of the magnitude of Z """
+    """ normalized enumeration of the magnitude of Z as an image
+
+    Args:
+        Z:      matrix (numpy array) of complex numbers
+
+    Returns:
+        im:     PIL grayscale image
+
+    """
     Zd = np.abs(Z)
     return Image.fromarray((mat2graphic(Zd) * 255).astype(np.uint8))
 
 
 def complex_rotation_image(Z):
-    """ image of the rotation of Z """
+    """ normalized enumeration of the rotation of Z as an image
+
+    Args:
+        Z:      matrix (numpy array) of complex numbers
+
+    Returns:
+        im:     PIL grayscale image
+
+    """
     Zr = np.arctan2(np.real(Z), np.imag(Z))
     return Image.fromarray((mat2graphic(Zr) * 255).astype(np.uint8))
