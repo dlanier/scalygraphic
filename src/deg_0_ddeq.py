@@ -255,6 +255,27 @@ def ItchicuPpwrF(Z, p=None, Z0=None, ET=None, Zm1=0, Zm2=0):
     return Z
 
 
+def plC6(Z, p=None, Z0=None, ET=None):
+    """ Z = plC6(Z, p)
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+        p[0]
+
+    MATLAB:
+    Z = Z^(2*Z^(c(1)^(Z^c(2))^(Z^c(3))^(Z^c(4))^(Z^c(5))^(Z^c(6))))
+    """
+    if p is None:
+        p = [0.123500832320, 0.378832330115, 0.825066681155, 1.531812539278, 2.928196237476, 5.071776879804]
+        return p
+
+    Z = Z ** (2 * Z ** (p[0] ** (Z ** p[1]) ** (Z ** p[2]) ** (Z ** p[3]) ** (Z ** p[4]) ** (Z ** p[5])))
+
+    return Z
+
+
 def ElGato(Z, p=None, Z0=None, ET=None):
     """ Z = bugga_bear(Z, p)
     Args:
