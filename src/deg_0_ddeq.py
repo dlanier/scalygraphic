@@ -315,3 +315,19 @@ def thunderHead(Z, p, Z0=None, ET=None):
 
     Z = Z**(2*Z**(-2*p[0]**(-2*Z**(-2*p[1]))))
     return Z
+
+def snflk(Z, p, Z0=None, ET=None):
+    """ Usage:
+
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+    """
+    if p is None:
+        p = [3.01874673, -1.00776339+0.74204475j]
+        return p
+    # Z = Z**(-np.exp(np.pi*p[1])**Z**(-np.sin(np.abs(p[0]+p[1])))**Z**(np.exp(p[1]-p[0])))
+    Z = Z**(-1*np.exp(np.pi*p[1])**Z**(-np.sin(np.abs(p[0]+p[1])))**Z**(np.exp(p[1]-p[0])))
+    return Z
