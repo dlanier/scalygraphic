@@ -105,7 +105,7 @@ def show_color_maps(n_cols=5):
         print(s)
 
 
-"""                                                                    Normalize                                     """
+"""                                                                    Begin-Normalize                              """
 def raw_graphic_norm(Z0, Z, ET):
     """ Zd, Zr, ETn = raw_graphic_norm(Z0, Z, ET)
     noramize escape time algorithm output for color mapping input
@@ -239,8 +239,10 @@ def range_norm(Z, lo=0.0, hi=1.0):
 
     return I
 
-
-"""                                                                    Impute Color                                  """
+"""
+        End Normalize
+                                                        Begin Image Color mapping wrapping
+"""
 
 def get_grey_thumb(imfile_name, thumb_size=(128, 128)):
     """ im = get_grey_thumb(imfile_name):
@@ -509,10 +511,9 @@ def imp_natcho_color(ET, Z, Z0, nat_spec_struct):
 """
 
 """
-            Image To Complex Matrix
-
+            End Image Color mapping wrapping
+                                                                Begin Complex Matrix <<-->> Image
 """
-
 
 def im_diff(im_gray_array, n=1):
     """ get the pixels difference as complex vectors
@@ -572,12 +573,6 @@ def im_to_Z(im_gray_array, n=1):
     return Z
 
 
-"""
-            Complex Matrix To Image
-
-"""
-
-
 def complex_mat_to_im(Z):
     """ image from complex matrix: normalized enumeration of the magnitude of Z as an image
         (it works - try not to think about it)
@@ -622,3 +617,9 @@ def complex_rotation_image(Z):
     """
     Zr = np.arctan2(np.real(Z), np.imag(Z))
     return Image.fromarray((mat2graphic(Zr) * 255).astype(np.uint8))
+
+"""
+            End Complex Matrix <<-->> Image
+            
+                                                    Begin Image Statistics
+"""
