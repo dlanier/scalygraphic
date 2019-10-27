@@ -38,14 +38,17 @@ testCmap = LinearSegmentedColormap('testCmap', segmentdata=cdict, N=256)
 c_map = matplotlib.cm.get_cmap(c_map_name)
 """
 import numpy as np
+import cv2
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import LinearSegmentedColormap
-# import matplotlib.pyplot as pyplot
 
 from PIL import TiffImagePlugin as tip
 from PIL import Image
+
+from IPython.display import display
 
 #                       Define lists of matplotlib named color maps by type
 cmaps = {}
@@ -71,6 +74,29 @@ cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
 cmaps['Miscellaneous'] = ['flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
                           'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
                           'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
+
+
+def nb_imshow(im_arr):
+    """ Usage: nb_imshow_gray(im_arr)
+    Args:
+        im_arr:     np.ndarray h, w, (d = None or 3)
+    """
+    if isinstance(im_arr, Image.Image):
+        display(im_arr)
+
+    else:
+        dpi_here = mpl.rcParams['figure.dpi']
+        h, w = im_arr.shape[0], im_arr.shape[1]
+        fig_size = w / dpi_here, h / dpi_here
+        fig = plt.figure(figsize=fig_size)
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.axis('off')
+        if len(im_arr.shape) == 2:
+            ax.imshow(im_arr, cmap='gray')
+        elif len(im_arr.shape) == 3:
+            ax.imshow(im_arr)
+        plt.show()
+
 
 def show_color_maps(n_cols=5):
     """ print the matplotlib color map names available in this module
@@ -103,6 +129,47 @@ def show_color_maps(n_cols=5):
         for a in acum:
             s += '%18s'%(a)
         print(s)
+
+def cat_im_list_hori(im_list):
+    """ combine a list of PIL images horizontaly
+    """
+    h = 0
+    w = 0
+    for im in im_list:
+        w += im.size[0]
+        h = max(h, im.size[1])
+
+    new_im = tip.Image.new('L', (w, h), color=0)
+    start_col = 0
+    for im in im_list:
+        end_col = start_col + im.size[0]
+        box = (start_col, 0, end_col, h)
+
+        new_im.paste(im, box)
+        start_col = end_col + 1
+
+    return new_im
+
+
+def cat_im_list_verti(im_list):
+    """ combine a list of PIL images vertically
+    """
+    h = 0
+    w = 0
+    for im in im_list:
+        h += im.size[1]
+        w = max(w, im.size[0])
+
+    new_im = tip.Image.new('L', (w, h), color=0)
+    start_row = 0
+    for im in im_list:
+        end_row = start_row + im.size[0]
+        box = (0, start_row, w, end_row)
+        new_im.paste(im, box)
+        start_row = end_row + 1
+
+    return new_im
+
 
 
 """                                                                    Begin-Normalize                              """
@@ -244,44 +311,9 @@ def range_norm(Z, lo=0.0, hi=1.0):
                                                         Begin Image Color mapping wrapping
 """
 
-def get_grey_thumb(imfile_name, thumb_size=(128, 128)):
-    """ im = get_grey_thumb(imfile_name):
-    """
-    c_map = mpl.cm.get_cmap('Greys')
-    img_src = tip.Image.open(imfile_name).convert('L')
-    img_src.thumbnail(thumb_size)
-    im = np.array(img_src)
-    im = c_map(im)
-    im = np.uint8(im * 255)
-    im = tip.Image.fromarray(im)
-    
-    return im
 
-
-def primitive_2_gray(P):
-    """
-    Args:
-         P:     Single layer matrix ET or abs(Z - Z0) etc.
-
-    Returns:
-        I:      grayscale image
-
-    """
-    n_rows = P.shape[0]
-    n_cols = P.shape[1]
-    
-    A = np.zeros((n_rows, n_cols,3))
-    A[:,:,0] += P     # Hue
-    A[:,:,1] += P      # Saturation
-    A[:,:,2] += P      # Value
-    
-    I = tip.Image.fromarray(np.uint8(A * 255), 'RGB').convert('L')
-    
-    return I
-
-
-def map_raw_etg(Z0, Z, ET, c_map_name='afmhot'):
-    """ get a color-mapped image of normalized distance
+def get_rgb_32bit(ET, Z, Z0):
+    """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
 
     Args:
         ET:     (Integer) matrix of the Escape Times
@@ -289,68 +321,35 @@ def map_raw_etg(Z0, Z, ET, c_map_name='afmhot'):
         Z0:     (complex) matrix of the starting plane
 
     Returns:
-        I:      RGB PIL image
+        RGB:      OpenCV float 32 image
 
     """
-    Zd, Zr, ETn = etg_norm(Z0, Z, ET)
-    
-    c_map = mpl.cm.get_cmap(c_map_name)
-    im = c_map(Zd)
-    im = np.uint8(im * 255)
-    im = tip.Image.fromarray(im)
-    
-    return im
+    n_rows = np.shape(ET)[0]
+    n_cols = np.shape(ET)[1]
+
+    Zd_n2, Zr_n2, ETn_n2 = etg_norm(Z0, Z, ET)
+
+    HSV = np.zeros((n_rows, n_cols, 3)).astype(np.float32)
+    HSV[:, :, 0] += ETn_n2.astype(np.float32)  # Hue
+    HSV[:, :, 1] += Zr_n2.astype(np.float32)  # Saturation
+    HSV[:, :, 2] += Zd_n2.astype(np.float32)  # Value
+
+    RGB = cv2.cvtColor(HSV, cv2.COLOR_HSV2RGB)
+
+    return RGB
 
 
-def map_etg_composite(Z0, Z, ET, c_map_name='afmhot'):
-    """ get an RGB image of HSV composite index to color map
-
-    Args:
-        ET:     (Integer) matrix of the Escape Times
-        Z:      (complex) matrix of the final vectors
-        Z0:     (complex) matrix of the starting plane
-
-    Returns:
-        I:      RGB PIL image
+def get_32bit_gray(ET, Z, Z0):
+    """ Usage: gray_32_bit = get_32bit_gray(ET, Z, Z0)
     """
-    im = np.array(get_im(ET, Z, Z0).convert('L'))
-
-    c_map = mpl.cm.get_cmap(c_map_name)
-    im = c_map(im)
-    
-    im = np.uint8(im * 255)
-    im = tip.Image.fromarray(im)
-    
-    return im
+    return cv2.cvtColor(get_rgb_32bit(ET, Z, Z0), cv2.COLOR_RGB2GRAY)
 
 
-def im_file_map(imfile_name, cmap_name='hot', thumb_size=None):
-    """ open an image file and color map it
-
-    Args:
-        imfile_name:    RGB or Greyscale image
-        cmap_name:      name of a matplotlib color map
-        (thumb_size):   thumnail image size eg (128, 128)
-
-    Returns:
-        I:              tif image
+def get_16bit_gray(ET, Z, Z0):
+    """ Usage: rgb_16_im = get_16bit_gray(ET, Z, Z0)
     """
-    if isinstance(cmap_name, LinearSegmentedColormap):
-        cm_hot = cmap_name
-    else:
-        cm_hot = mpl.cm.get_cmap(cmap_name)
-
-    img_src = tip.Image.open(imfile_name).convert('L')
-
-    if not thumb_size is None:
-        img_src.thumbnail((thumb_size[0], thumb_size[1]))
-
-    im = np.array(img_src)
-    im = cm_hot(im)
-    im = np.uint8(im * 255)
-    im = tip.Image.fromarray(im)
-
-    return im
+    BITS16 = 2 ** 16 - 1
+    return (get_32bit_gray(ET, Z, Z0) * BITS16).astype(np.uint16)
 
 
 def get_im(ET, Z, Z0):
@@ -358,12 +357,12 @@ def get_im(ET, Z, Z0):
     ETn         normalized escape time matrix           Hue
     Zr          normalized rotation of |Z - Z0|         Saturation
     Zd          normalized magnitude of |Z - Z0|        Value
-    
+
     Args:
-        ET:     (Integer) matrix of the Escape Times    
-        Z:      (complex) matrix of the final vectors   
+        ET:     (Integer) matrix of the Escape Times
+        Z:      (complex) matrix of the final vectors
         Z0:     (complex) matrix of the starting plane
-        
+
     Returns:
         I:      RGB PIL image
 
@@ -377,110 +376,23 @@ def get_im(ET, Z, Z0):
     A[:,:,1] += Zr      # Saturation
     A[:,:,2] += Zd      # Value
     I = tip.Image.fromarray(np.uint8(A * 255), 'HSV').convert('RGB')
-    
+
     return I
 
 
 def get_gray_im(ET, Z, Z0):
     """ get a gray-scale image from the products of the escape-time-algorithm
-    
+
     Args:
         ET:     (Integer) matrix of the Escape Times
         Z:      (complex) matrix of the final vectors
         Z0:     (complex) matrix of the starting plane
-        
+
     Returns:
         I:      grayscale PIL image
     """
     return get_im(Z0, Z, ET).convert('L')
 
-
-def pil_rgb_2_uint16_gray(rgb_im):
-    """ convert a pillow rgb image to an unsigned 16 bit numpy array
-            - suitable for skimage.io.imsave
-            - suitable for matplotlib color mapping
-
-    Args:
-        rgb_im:     PIL rgb image
-
-    Returns:
-        gray_int:   numpy.ndarray of uint16 (0, 65535)
-    """
-    rgb_im.getdata()
-    r, g, b = rgb_im.split()
-
-    ra = np.array(r)
-    ga = np.array(g)
-    ba = np.array(b)
-
-    bit_depth = 2 ** 16 - 1
-
-    R2g = 0.299
-    G2g = 0.587
-    B2g = 0.114
-
-    gray_int = np.uint16((R2g * ra + G2g * ga + B2g * ba) * bit_depth)
-
-    return gray_int
-
-
-def get_uint16_gray(ET, Z, Z0):
-    """  convert results data (ET, Z, Z0) to an unsigned 16 bit numpy array
-            - Write with: skimage.io.imsave(f_name, gray_int)
-            - colo map with matplotlib.cm
-    Args:
-        ET:     (Integer) matrix of the Escape Times
-        Z:      (complex) matrix of the final vectors
-        Z0:     (complex) matrix of the starting plane
-
-    Returns:
-        gray_16bit:     numpy.ndarray (16 bit integer)
-    """
-    img = get_im(ET, Z, Z0)
-    gray_int = pil_rgb_2_uint16_gray(img)
-
-    return gray_int
-
-
-def cat_im_list_hori(im_list):
-    """ combine a list of images horizontaly
-    """
-    h = 0
-    w = 0
-    for im in im_list:
-        w += im.size[0]
-        h = max(h, im.size[1])
-
-    new_im = tip.Image.new('L', (w, h), color=0)
-    start_col = 0
-    for im in im_list:
-        end_col = start_col + im.size[0]
-        box = (start_col, 0, end_col, h)
-
-        new_im.paste(im, box)
-        start_col = end_col + 1
-
-    return new_im
-
-
-def cat_im_list_verti(im_list):
-    """ combine a list of images vertically
-    """
-    h = 0
-    w = 0
-    for im in im_list:
-        h += im.size[1]
-        w = max(w, im.size[0])
-
-    new_im = tip.Image.new('L', (w, h), color=0)
-    start_row = 0
-    for im in im_list:
-        end_row = start_row + im.size[0]
-        box = (0, start_row, w, end_row)
-        new_im.paste(im, box)
-        start_row = end_row + 1
-
-    return new_im
 
 """
 #            to do:     Sort out the ugly details s.t. a natural color specification will produce
