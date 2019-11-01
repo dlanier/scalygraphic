@@ -52,6 +52,7 @@ def get_traceback_bottom_line(S):
 
     return file_name, f_name, line_num
 
+
 def show_equations():
     """
     display the numbered dict of imported equations
@@ -60,6 +61,7 @@ def show_equations():
     print('\n\t%s with function %s:\n\n\tname_functionhandle_dict.items()'%(file_name, f_name))
     for n, t in name_functionhandle_dict.items():
         print('%03i' % (n), t)
+
 
 def get_run_directory_and_run_file(args):
     """ Parse the input arguments to get the run_directory and run_file

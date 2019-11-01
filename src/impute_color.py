@@ -13,6 +13,8 @@ Z0  = start vector matrix (complex)
 Z   = final vector matrix (complex)
 ET  = number of iterations (positive integer)
 
+                NOTE THAT INPUT VARIABLES ORDERING IS ALWAYS:  Z0, Z, ET
+
         WhyFor the code:
 NormalizationUnderstandingNotebook.ipynb
 ColorImputationUnderstandingNotebook.ipynb
@@ -34,6 +36,8 @@ cdict = {'red':   [[0.0,  0.0, 0.0],
 
 testCmap = LinearSegmentedColormap('testCmap', segmentdata=cdict, N=256)
 
+
+
 #                       get matplotlib Named colormaps:
 c_map = matplotlib.cm.get_cmap(c_map_name)
 """
@@ -43,7 +47,7 @@ import cv2
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from matplotlib.colors import LinearSegmentedColormap
+# from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
 from PIL import TiffImagePlugin as tip
 from PIL import Image
@@ -208,11 +212,11 @@ def etg_norm(Z0, Z, ET):
         Zr:     flattend norm of rotation difference
         ETn:    flattend norm Escape Time matrix
     """
-    ETn = mat2graphic(ET)
     Zv = Z - Z0
     Zd = mat2graphic(Zv)
     Zr = mat2graphic(np.arctan2(np.imag(Zv), np.real(Zv)))
-    
+    ETn = mat2graphic(ET)
+
     return Zd, Zr, ETn
 
 
@@ -306,13 +310,86 @@ def range_norm(Z, lo=0.0, hi=1.0):
 
     return I
 
+
+def hsv_norm(Z0, Z, ET):
+    """ V, S, H = hsv_norm(Z0, Z, ET); Graphically usable matrices from escape time algorithm result
+    Args:
+        Z0:     matrix of complex starting points
+        Z:      matrix of final points (complex)
+        ET:     Escape-Time -- number of iterations
+
+    Returns:
+        V:      value
+        S:      saturation
+        H:      hue
+    """
+    Zv = Z - ET
+    V = mat2graphic(Zv)
+    S = 1 - mat2graphic(np.arctan2(np.imag(Z), np.real(Z)))
+    H = mat2graphic(Z - Z0)
+
+    return V, S, H
+
 """
         End Normalize
                                                         Begin Image Color mapping wrapping
 """
+def primitive_2_gray_8_bit(P):
+    """
+    Args:
+         P:     Single layer matrix ET or abs(Z - Z0) etc.
+    Returns:
+        I:      grayscale image
+    """
+    n_rows = P.shape[0]
+    n_cols = P.shape[1]
+    A = np.zeros((n_rows, n_cols, 3))
+    A[:, :, 0] += P  # Hue
+    A[:, :, 1] += P  # Saturation
+    A[:, :, 2] += P  # Value
 
+    return tip.Image.fromarray(np.uint8(A * 255), 'RGB').convert('L')
 
-def get_rgb_32bit(ET, Z, Z0):
+def primitive_2_gray(P):
+    """
+    Args:
+         P:     Single layer matrix ET or abs(Z - Z0) etc.
+    Returns:
+        I:      grayscale image
+    """
+    return primitive_2_gray_8_bit(P)
+
+def primitive_2_gray_float32(P):
+    """
+    Args:
+         P:     Single layer matrix ET or abs(Z - Z0) etc.
+    Returns:
+        I:      grayscale image
+    """
+    P32 = P.astype(np.float32)
+    n_rows = P.shape[0]
+    n_cols = P.shape[1]
+    HSV = np.zeros((n_rows, n_cols, 3)).astype(np.float32)
+
+    HSV[:, :, 0] += P32
+    HSV[:, :, 1] += P32
+    HSV[:, :, 2] += P32
+
+    RGB = cv2.cvtColor(HSV, cv2.COLOR_HSV2RGB)
+
+    return cv2.cvtColor(RGB, cv2.COLOR_RGB2GRAY)
+
+def primitive_2_gray_16bit(P):
+    """
+    Args:
+         P:     Single layer matrix ET or abs(Z - Z0) etc.
+    Returns:
+        I:      grayscale image
+    """
+    BITS16 = 2 ** 16 - 1
+    return (primitive_2_gray_float32(P) * BITS16).astype(np.uint16)
+
+def get_rgb_32bit(Z0, Z, ET):
     """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
 
     Args:
@@ -324,35 +401,69 @@ def get_rgb_32bit(ET, Z, Z0):
         RGB:      OpenCV float 32 image
 
     """
+    # n_rows = np.shape(ET)[0]
+    # n_cols = np.shape(ET)[1]
+    # # Zd, Zr, ETn = etg_norm(Z0, Z, ET)
+    # Zd_n2, Zr_n2, ETn_n2 = etg_norm(Z0, Z, ET)
+    #
+    # HSV = np.zeros((n_rows, n_cols, 3)).astype(np.float32)
+    # HSV[:, :, 0] += ETn_n2.astype(np.float32)  # Hue
+    # HSV[:, :, 1] += Zr_n2.astype(np.float32)  # Saturation
+    # HSV[:, :, 2] += Zd_n2.astype(np.float32)  # Value
+    #
+    # RGB = cv2.cvtColor(HSV, cv2.COLOR_HSV2RGB)
+    #
+    # return RGB
+    return get_rgb_float32(Z0, Z, ET, norm='hsv')
+
+
+def get_rgb_float32(Z0, Z, ET, norm=''):
+    """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
+
+    Args:
+        ET:     (Integer) matrix of the Escape Times
+        Z:      (complex) matrix of the final vectors
+        Z0:     (complex) matrix of the starting plane
+        norm:   'hsv', 'etg', ''
+    Returns:
+        RGB:      OpenCV float 32 image
+
+    """
     n_rows = np.shape(ET)[0]
     n_cols = np.shape(ET)[1]
 
-    Zd_n2, Zr_n2, ETn_n2 = etg_norm(Z0, Z, ET)
+    if norm == 'hsv':
+        V, S, H = hsv_norm(Z0, Z, ET)
+    elif norm == 'etg':
+        V, S, H = etg_norm(Z0, Z, ET)
+    else:
+        V, S, H = etg_norm(ET, Z, Z0)
 
     HSV = np.zeros((n_rows, n_cols, 3)).astype(np.float32)
-    HSV[:, :, 0] += ETn_n2.astype(np.float32)  # Hue
-    HSV[:, :, 1] += Zr_n2.astype(np.float32)  # Saturation
-    HSV[:, :, 2] += Zd_n2.astype(np.float32)  # Value
+    HSV[:, :, 0] += H.astype(np.float32)  # Hue
+    HSV[:, :, 1] += S.astype(np.float32)  # Saturation
+    HSV[:, :, 2] += V.astype(np.float32)  # Value
 
     RGB = cv2.cvtColor(HSV, cv2.COLOR_HSV2RGB)
 
     return RGB
 
-
-def get_32bit_gray(ET, Z, Z0):
+def get_float32_gray(Z0, Z, ET, norm='hsv'):
     """ Usage: gray_32_bit = get_32bit_gray(ET, Z, Z0)
     """
-    return cv2.cvtColor(get_rgb_32bit(ET, Z, Z0), cv2.COLOR_RGB2GRAY)
+    # return cv2.cvtColor(get_rgb_32bit(Z0, Z, ET), cv2.COLOR_RGB2GRAY)
+    return cv2.cvtColor(get_rgb_float32(Z0, Z, ET, norm), cv2.COLOR_RGB2GRAY)
 
 
-def get_16bit_gray(ET, Z, Z0):
+def get_16bit_gray(Z0, Z, ET, norm='hsv'):
     """ Usage: rgb_16_im = get_16bit_gray(ET, Z, Z0)
     """
     BITS16 = 2 ** 16 - 1
-    return (get_32bit_gray(ET, Z, Z0) * BITS16).astype(np.uint16)
+    # return (get_32bit_gray(Z0, Z, ET) * BITS16).astype(np.uint16)
+    return cv2.cvtColor( (get_rgb_float32(Z0, Z, ET, norm) * BITS16).astype(np.uint16), cv2.COLOR_RGB2GRAY)
 
 
-def get_im(ET, Z, Z0):
+def get_im(Z0, Z, ET):
     """ get a color image from  the products of the escape-time-algorithm Using HSV - RGB model:
     ETn         normalized escape time matrix           Hue
     Zr          normalized rotation of |Z - Z0|         Saturation
@@ -380,7 +491,7 @@ def get_im(ET, Z, Z0):
     return I
 
 
-def get_gray_im(ET, Z, Z0):
+def get_gray_im(Z0, Z, ET):
     """ get a gray-scale image from the products of the escape-time-algorithm
 
     Args:
@@ -392,6 +503,18 @@ def get_gray_im(ET, Z, Z0):
         I:      grayscale PIL image
     """
     return get_im(Z0, Z, ET).convert('L')
+
+
+def mat_stock_map(I, c_map_name):
+    """
+    Args:
+         I:             index matrix -- best is uint16
+         c_map_name:    matplotlib colormap name
+    Returns:
+        rgb_image:      as numpy array
+    """
+    c_map = cm.get_cmap(c_map_name)
+    return c_map(I)
 
 
 """
