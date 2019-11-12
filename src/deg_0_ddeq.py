@@ -16,21 +16,20 @@ def bugga_bear(Z, p, Z0=None, ET=None):
     EPSILON = 1e-15
 
     if p is None:
-        return [-0.851612290000, -1.794358160000, -4.450415130000]
+        return [-0.851612290000, 3.2197212063585856, -88.14578913619096]
     if Z == 0.0+0.0j:
         return np.Inf
-
+    c = np.sqrt(np.pi)
     try:
         for n in range(1, len(p)+1):
             Zok = np.isfinite(Z)
             if Zok and np.abs(Z) != 0:
-                Z = 1 / Z - Z**( n * (Z**( p[n-1]**n )) / np.sqrt(np.pi))
+                Z = 1 / Z - Z**( n * (Z**p[n-1]) / c)
             elif Zok:
-                Z = 1 / EPSILON - Z**( n * (Z**( p[n-1]**n )) / np.sqrt(np.pi))
+                Z = 1 / EPSILON - Z**( n * (Z**p[n-1] ) / c)
     except:
         pass
     return Z
-
 
 def starfish_ish(Z, p=None, Z0=None, ET=None):
     """
