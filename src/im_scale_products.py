@@ -34,6 +34,7 @@ import impute_color as ncp
         name_functionhandle_dict is an enumerated dictionary of the function_name: function_handle
         number_function_name_dict is a dictionary index {name: enumeration_number} of name_functionhandle_dict
 """
+named_function_handles_dict = {k: v for k, v in inspect.getmembers(deg_0_ddeq, inspect.isfunction)}
 name_functionhandle_dict = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
 number_function_name_dict = {v[0]: k for k, v in name_functionhandle_dict.items()}
 
@@ -153,22 +154,83 @@ def scaled_images_dataset(run_parameters):
     print('\n%i pairs written \n'%(len(hash_list)))
 
 
-def get_default_iteration_dict(iteration_dict=None):
-    if iteration_dict is None:
-        iteration_dict = {}
-    iteration_dict['it_max'] = 64
-    iteration_dict['scale_dist'] = 12
-    return iteration_dict
-
-
-def get_default_domain_dict(domain_dict=None):
-    if domain_dict is None:
-        domain_dict = {}
-    domain_dict['center_point'] = 0.0 + 0.0j
-    domain_dict['zoom'] = 0.5
-    domain_dict['theta'] = 0.0
-    return domain_dict
-
+# def get_default_iteration_dict(iteration_dict=None):
+#     if iteration_dict is None:
+#         iteration_dict = {}
+#     iteration_dict['it_max'] = 64
+#     iteration_dict['scale_dist'] = 12
+#     return iteration_dict
+#
+#
+# def get_default_domain_dict(domain_dict=None):
+#     """ Usage: domain_dict = get_default_domain_dict((optional:domain_dict))
+#
+#      Args:
+#         domain_dict:        (optional) python dict
+#
+#     Returns:
+#         domain_dict:        python dict with these keys set or reset
+#                                 domain_dict['center_point'] = 0.0 + 0.0j
+#                                 domain_dict['zoom'] = 0.5
+#                                 domain_dict['theta'] = 0.0
+#     """
+#     if domain_dict is None:
+#         domain_dict = {}
+#     domain_dict['center_point'] = 0.0 + 0.0j
+#     domain_dict['zoom'] = 0.5
+#     domain_dict['theta'] = 0.0
+#     return domain_dict
+#
+#
+# def get_test_domain_dict(it_max=None, scale_dist=None):
+#     """ Usage: domain_dict = get_center_domain_dict(it_max, scale_dist)
+#
+#      Args:
+#         it_max:             (optional) max number of iterations default = 64
+#         scale_dist:         domain diagonal multiplier          default = 12
+#
+#     Returns:
+#         domain_dict:        python dict with these keys set or reset
+#                                 domain_dict['center_point'] = 0.0 + 0.0j
+#                                 domain_dict['zoom'] = 0.5
+#                                 domain_dict['theta'] = 0.0
+#                                 domain_dict['it_max'] = it_max
+#                                 domain_dict['max_d'] = scale_dist / domain_dict['zoom']
+#                                 domain_dict['n_rows'] = 255
+#                                 domain_dict['n_cols'] = 255
+#     """
+#     if it_max is None:
+#         it_max = 64
+#
+#     if scale_dist is None:
+#         scale_dist = 12
+#
+#     domain_dict = get_default_domain_dict()
+#     domain_dict['it_max'] = it_max
+#     domain_dict['max_d'] = scale_dist / domain_dict['zoom']
+#     domain_dict['n_rows'] = 255
+#     domain_dict['n_cols'] = 255
+#
+#     return domain_dict
+#
+#
+# def domain_update_zoom(domain_dict, zoom_value):
+#     """ Usage:  domain_dict = domain_update_zoom(domain_dict, new_value)
+#                 check zoom value and update the max distance parameter
+#     Args:
+#         domain_dict:   with keys: zoom and max_d
+#         zoom_value:
+#
+#     Returns:
+#         domain_dict:
+#     """
+#     epsln = np.finfo(np.float).eps
+#     zoom_value = max(epsln, zoom_value)
+#     scale_dist = domain_dict['zoom'] * domain_dict['max_d']
+#     domain_dict['zoom'] = zoom_value
+#     domain_dict['max_d'] = scale_dist / domain_dict['zoom']
+#
+#     return domain_dict
 
 def get_run_parameters(run_directory, run_file):
     """ Read the input arguments into a dictionary
