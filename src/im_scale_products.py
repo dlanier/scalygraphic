@@ -3,6 +3,10 @@ Collection of functions to run image production for machine learning application
 
 See the Makefile and ../data/run_files/ for usage examples
 
+     Constants (lookups):
+        NAMED_FUNCTION_HANDLES_DICT  == {'function_name': function_handle,...}
+        ENUMERATED_NAME_FUNCTION_HANDLE_DICT is an enumerated dictionary of the function_name: function_handle
+        NAME_NUMBER_DICT is a dictionary index {name: enumeration_number} of name_functionhandle_dict
 """
 import warnings
 warnings.filterwarnings('ignore')
@@ -28,15 +32,16 @@ import zplain as zp
 import eq_iter
 import deg_0_ddeq
 import impute_color as ncp
+from noat_buk_snippers import get_default_domain_dict, get_default_iteration_dict
 
-"""     Constants (lookups):
+NAMED_FUNCTION_HANDLES_DICT = {k: v for k, v in inspect.getmembers(deg_0_ddeq, inspect.isfunction)}
+named_function_handles_dict = NAMED_FUNCTION_HANDLES_DICT
 
-        name_functionhandle_dict is an enumerated dictionary of the function_name: function_handle
-        number_function_name_dict is a dictionary index {name: enumeration_number} of name_functionhandle_dict
-"""
-named_function_handles_dict = {k: v for k, v in inspect.getmembers(deg_0_ddeq, inspect.isfunction)}
-name_functionhandle_dict = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
-number_function_name_dict = {v[0]: k for k, v in name_functionhandle_dict.items()}
+ENUMERATED_NAME_FUNCTION_HANDLE_DICT = {k: v for k, v in enumerate(inspect.getmembers(deg_0_ddeq, inspect.isfunction))}
+name_functionhandle_dict = ENUMERATED_NAME_FUNCTION_HANDLE_DICT
+
+NAME_NUMBER_DICT = {v[0]: k for k, v in ENUMERATED_NAME_FUNCTION_HANDLE_DICT.items()}
+number_function_name_dict = NAME_NUMBER_DICT
 
 def get_traceback_bottom_line(S):
     """ S = traceback.extract_stack()
