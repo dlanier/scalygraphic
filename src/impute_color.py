@@ -607,6 +607,17 @@ def im_to_Z(im_gray_array, n=1):
 
     return Z
 
+def complex_mat_to_real_uint_mat(Z, pixel_type=np.uint8):
+    if isinstance(pixel_type, np.uint8) or isinstance(pixel_type, np.uint16):
+        scaler = np.iinfo(pixel_type).max
+    else:
+        pixel_type = np.uint8
+        scaler = np.iinfo(pixel_type).max
+
+    Zd = np.abs(Z)
+    Zr = np.arctan2(np.real(Z), np.imag(Z))
+
+    return (mat2graphic(np.maximum(graphic_norm(Zr), graphic_norm(Zd))) * scaler).astype(pixel_type)
 
 def complex_mat_to_im(Z):
     """ image from complex matrix: normalized enumeration of the magnitude of Z as an image
