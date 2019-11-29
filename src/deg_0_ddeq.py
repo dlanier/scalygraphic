@@ -330,3 +330,20 @@ def snflk(Z, p, Z0=None, ET=None):
     # Z = Z**(-np.exp(np.pi*p[1])**Z**(-np.sin(np.abs(p[0]+p[1])))**Z**(np.exp(p[1]-p[0])))
     Z = Z**(-1*np.exp(np.pi*p[1])**Z**(-np.sin(np.abs(p[0]+p[1])))**Z**(np.exp(p[1]-p[0])))
     return Z
+
+def lambda_D_9(Z, p, Z0=None, ET=None):
+    """ Usage:
+
+    Args:
+        Z:    a real or complex number
+        p:    a real of complex number
+    Returns:
+        Z:    the result (complex)
+    """
+    if p is None:
+        p = [-0.8641-0.3889j, -0.8179+0.4843j, 0.6357+1.682j, 0.7844+0.8828j]
+        return p
+
+    Z = (p[0]*Z - p[1]*Z0**2) / (p[2]*Z**2 + p[3]*Z**3)
+
+    return Z
