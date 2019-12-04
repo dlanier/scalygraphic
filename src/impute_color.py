@@ -550,6 +550,36 @@ def imp_natcho_color(ET, Z, Z0, nat_spec_struct):
                                                                 Begin Complex Matrix <<-->> Image
 """
 
+
+def gray_to_complex_vector_edges(im_array, edge_n=1):
+    """ Usage: complex_vector_edges = gray_to_complex_vector_edges(im_gray_array, n)
+            directional-difference accross each pixel as a complex vector
+    Args:
+        im_gray_array:  grayscale image as an array
+        n_pixels_diff:  how many pixels to differ accross - default = 1
+                        (eg - magnitude is pixel to the right minus pixel on the left)
+
+    Returns:
+        vector_edges:   matrix
+    """
+    n = edge_n
+
+    r_minus_45 = np.exp(1.0j * (-1.0) * np.pi / 4)
+    r_minus_90 = np.exp(1.0j * (-1.0) * np.pi / 2)
+    r_minus_135 = np.exp(1.0j * (-3) * np.pi / 4)
+
+    # Differences in the Left to Right direction
+    vector_edges = ((im_array[:, n:] - im_array[:, :-n])[n:, :]).astype(np.complex128)
+    # Differences in the top to bottom direction
+    vector_edges += ((im_array[n:, :] - im_array[:-n, :])[:, n:]).astype(np.complex128) * r_minus_90
+    # Differences in the Upper Left to Lower Right direction
+    vector_edges += (im_array[:-n, :-n] - im_array[n:, n:]).astype(np.complex128) * r_minus_45
+    # Differences in the Upper Right to Lower Left direction
+    vector_edges += (im_array[n:, :-n] - im_array[:-n, n:]).astype(np.complex128) * r_minus_135
+
+    return vector_edges
+
+
 def im_diff(im_gray_array, n=1):
     """ get the pixels difference as complex vectors
     Usage: Z = im_diff(im_gray_array, n=1)
