@@ -293,9 +293,13 @@ def ElGato(Z, p=None, Z0=None, ET=None):
     elif Z == 0.0+0.0j:
         return np.Inf
 
-    Zout = Z ** (2 * Z ** (-(
-                (((((p[0] ** Z ** -p[1]) ** (Z ** -p[2])) ** (Z ** -p[3])) ** (Z ** -p[4])) ** (Z ** -p[5])) ** (
-                    Z ** -p[6]))))
+    # Zout = Z ** (2 * Z ** (-(
+    #             (((((p[0] ** Z ** -p[1]) ** (Z ** -p[2])) ** (Z ** -p[3])) ** (Z ** -p[4])) ** (Z ** -p[5])) ** (
+    #                 Z ** -p[6]))))
+    # Oh Yahea
+
+    Zout = Z**(2*Z**(-((((((p[0]**Z** -p[1])**(Z** -p[2]))**(Z** -p[3]))**(Z** -p[4]))**(Z** -p[5]))**(Z** -p[6]))))
+
     return Zout
 
 def thunderHead(Z, p, Z0=None, ET=None):
