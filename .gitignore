@@ -25,6 +25,7 @@ wheels/
 *.egg
 MANIFEST
 
+.idea/
 .DS_Store
 
 # PyInstaller
