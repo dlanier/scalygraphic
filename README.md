@@ -24,7 +24,7 @@ Requires Python 3.5 or later
   a. Copy the file scalygraphic/data/run_files/create_scaled_image_set.yml to your run (or test) directory.  <br>
     
   ```bash scripting
-    #in the directory with the cloned repo
+    # cd to the directory with the cloned repo
     mkdir -p run_dir/results
     cp scalygraphic/data/run_files/create_scaled_image_set.yml run_dir/anew_image_set.yml
   ```
@@ -36,26 +36,26 @@ Requires Python 3.5 or later
     # method parameter defines function call in main (src/scalygraphci.py)
     method:               scaled_images_dataset
 
-    #number of pairs of images
+    # number of pairs of images
     number_of_image_sets: 100
 
-    #small scale size
+    # small scale size
     small_scale_rows:     128
     small_scale_cols:     128
 
-    #matching large scale image size
+    # matching large scale image size
     large_scale_rows:     256
     large_scale_cols:     256
 
-    #where to write the results
+    # where to write the results
     results_directory:    ./run_dir/results
 
-    #max number of iterations for the algorithm (larger is slower)
+    # max number of iterations for the algorithm (larger is slower)
     it_max:               64
-    #image diagonal multiples (larger is slower, smaller may produce artifacts)
+    # image diagonal multiples (larger is slower, smaller may produce artifacts)
     scale_dist:           10
 
-    #false color if true
+    # false color if true
     greyscale:            False
     #constrain image generation to use one equation only
     use_one_eq:           False
