@@ -16,15 +16,18 @@ Requires Python 3.5 or more
 
 ------
  # Generate a set of images for train / validate / test 
- (this example is for super-resolution)
 <details>
-  a. Copy the file scalygraphic/data/run_files/create_scaled_image_set.yml to your run (or test) directory
+  <summary>
+   (this example is for super-resolution)
+  </summary> <br>
+  a. Copy the file scalygraphic/data/run_files/create_scaled_image_set.yml to your run (or test) directory.  <br>
   ```bash scripting
   #in the directory with the cloned repo
   mkdir -p run_dir/results
   cp scalygraphic/data/run_files/create_scaled_image_set.yml run_dir/anew_image_set.yml
   ```
-  b. Edit the newly copied file to set the run parameters for the desired data set.
+   <br>
+  b. Edit the newly copied file to set the run parameters for the desired data set.  <br>
   ```bash scripting
   #main function in src/scalygraphic.py calls method defined here with these run parameters
   method:               scaled_images_dataset
@@ -53,7 +56,8 @@ Requires Python 3.5 or more
   #constrain image generation to use one equation only
   use_one_eq:           False
   ```
-  c. Call the main function from the command line with the edited .yml file
+<br>
+  c. Call the main function from the command line with the edited .yml file.  <br>
   ```bash scripting
   #Note that the run_file is in the run_directory
   python3 ./scalygraphic/src/scalygraphic.py -run_directory ./run_dir/ -run_file anew_image_set.yml
