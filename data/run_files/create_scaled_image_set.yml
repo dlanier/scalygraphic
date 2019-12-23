@@ -2,6 +2,7 @@
 #                     Parameters to generate a set of scaled images for Machine learning
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+# method parameter defines function call in main (src/scalygraphci.py)
 method:               scaled_images_dataset
 
 number_of_image_sets: 100
@@ -14,9 +15,15 @@ large_scale_cols:     256
 
 results_directory:    ./run_dir/results
 
+#                     escape-time algorithm parameters
+# max number of iterations for the algorithm (larger is slower)
 it_max:               64
+
+# image diagonal multiples (larger is slower, smaller may produce artifacts)
 scale_dist:           10
 
+# use false color if True
 greyscale:            False
 
+# random select different equation for each image pair
 use_one_eq:           False
