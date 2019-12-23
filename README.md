@@ -25,7 +25,9 @@ Requires Python 3.5 or later
     
   ```bash scripting
     # cd to the directory with the cloned repo
+    
     mkdir -p run_dir/results
+    
     cp scalygraphic/data/run_files/create_scaled_image_set.yml run_dir/anew_image_set.yml
   ```
   </p>
