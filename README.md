@@ -19,14 +19,16 @@ Requires Python 3.5 or more
 <details>
   <summary>
    (this example is for super-resolution)
-  </summary> <br>
+  </summary> 
+  <p>
   a. Copy the file scalygraphic/data/run_files/create_scaled_image_set.yml to your run (or test) directory.  <br>
   ```bash scripting
-  #in the directory with the cloned repo
-  mkdir -p run_dir/results
-  cp scalygraphic/data/run_files/create_scaled_image_set.yml run_dir/anew_image_set.yml
+    #in the directory with the cloned repo
+    mkdir -p run_dir/results
+    cp scalygraphic/data/run_files/create_scaled_image_set.yml run_dir/anew_image_set.yml
   ```
-   <br>
+  </p>
+  <p>
   b. Edit the newly copied file to set the run parameters for the desired data set.  <br>
   ```bash scripting
     method:               scaled_images_dataset
@@ -55,12 +57,13 @@ Requires Python 3.5 or more
     #constrain image generation to use one equation only
     use_one_eq:           False
   ```
-<br>
+  </p>
+  <p>
   c. Call the main function from the command line with the edited .yml file.  <br>
   ```bash scripting
-  #Note that the run_file is in the run_directory
-  python3 ./scalygraphic/src/scalygraphic.py -run_directory ./run_dir/ -run_file anew_image_set.yml
-  #Check that the hash-named images begin to appear in the run_dir/results directory
+    #Note that the run_file is in the run_directory
+    python3 ./scalygraphic/src/scalygraphic.py -run_directory ./run_dir/ -run_file anew_image_set.yml
+    #Check that the hash-named images begin to appear in the run_dir/results directory
   ```
 </details>
 ------
