@@ -11,17 +11,18 @@
   ```
   b. Edit a yaml file to set your image resolutions and number of images
   
-Requires Python 3.5 or more
+Requires Python 3.5 or later
  </details>
 
 ------
  # Generate a set of images for train / validate / test 
 <details>
   <summary>
-   (this example is for super-resolution)
+    (this example is for super-resolution)
   </summary> 
   <p>
   a. Copy the file scalygraphic/data/run_files/create_scaled_image_set.yml to your run (or test) directory.  <br>
+    
   ```bash scripting
     #in the directory with the cloned repo
     mkdir -p run_dir/results
@@ -30,7 +31,9 @@ Requires Python 3.5 or more
   </p>
   <p>
   b. Edit the newly copied file to set the run parameters for the desired data set.  <br>
+  
   ```bash scripting
+    # method parameter defines function call in main (src/scalygraphci.py)
     method:               scaled_images_dataset
 
     #number of pairs of images
@@ -60,6 +63,7 @@ Requires Python 3.5 or more
   </p>
   <p>
   c. Call the main function from the command line with the edited .yml file.  <br>
+  
   ```bash scripting
     #Note that the run_file is in the run_directory
     python3 ./scalygraphic/src/scalygraphic.py -run_directory ./run_dir/ -run_file anew_image_set.yml
