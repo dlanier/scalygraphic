@@ -16,10 +16,12 @@ Requires Python 3.5 or later
 
 ------
  # Generate a set of images for train / validate / test 
+ 
 <details>
   <summary>
     Example for super-resolution: main() method "scaled_images_dataset"
-  </summary> 
+  </summary> <br>
+  
   <p>
   a. Copy the file scalygraphic/data/run_files/create_scaled_image_set.yml to your run (or test) directory.  <br>
     
