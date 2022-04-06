@@ -1,3 +1,9 @@
+# Research: Image Spatial Analysis and preprocessing with complex data types
+<details>
+  <summary>
+    Improved image gradient methods for 3d images
+  </summary>
+</details>
 # scalygrapic - scalable image graphic machine learning
 <details>
   <summary> 
